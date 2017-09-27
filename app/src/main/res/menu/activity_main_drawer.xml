@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+         <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/ic_rss_feed_black_24dp"
+            android:title="@string/nav_news" />
+        <item
+            android:id="@+id/nav_fav_news"
+            android:icon="@drawable/ic_star_black_24dp"
+            android:title="@string/nav_fav" />
+
+    </group>
+
+    <item android:title="설정">
+        <menu>
+            <item
+                android:id="@+id/nav_font_size"
+                android:icon="@drawable/ic_text_format_black_24dp"
+                android:title="@string/nav_font_size" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_menu_send"
+                android:title="@string/nav_logout"/>
+        </menu>
+    </item>
+
+</menu>
