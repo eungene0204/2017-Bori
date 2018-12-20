@@ -2,8 +2,8 @@ package bori.bori.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,37 +16,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import bori.bori.news.NewsInfo;
-import bori.bori.utility.FontUtils;
-import bori.bori.utility.JsonUtils;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import bori.bori.R;
-import bori.bori.adapter.RecommendListAdapter;
+import bori.bori.adapter.HeadNewsAdapter;
 import bori.bori.news.News;
+import bori.bori.news.NewsInfo;
 import bori.bori.user.MyUser;
+import bori.bori.utility.FontUtils;
+import bori.bori.utility.JsonUtils;
 import bori.bori.volley.VolleyHelper;
 import bori.bori.volley.VolleySingleton;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import org.json.JSONObject;
 
 
-/**
- * Created by Eugene on 2017-03-07.
- */
-
-public class RecommendFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener
-    ,VolleyHelper.OnVolleyHelperRecommendNewsListener
+public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyHelperHeadNewsListener, SwipeRefreshLayout.OnRefreshListener
 {
-    public static String TAG = "RecommendFragment";
+    public static String TAG = HeadNewsFragment.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
-    private RecommendListAdapter mAdapter;
-    private OnRecommendFragmentListener mListener;
+    private HeadNewsAdapter mAdapter;
+    private OnHeadNewsFragmentInteractionListener mListener;
     private List<News> mDataset;
     private MyUser mMyUser;
 
@@ -58,8 +51,9 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     private boolean mIsRefresh = false;
     private int mFontSize;
 
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
@@ -77,37 +71,39 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
         {
             mFontSize = (int)getResources().getDimension(R.dimen.webview_text_size_middle);
         }
-
     }
 
     private void initVolley()
     {
+
         RequestQueue requestQueue =
                 VolleySingleton.getInstance
                         (getActivity().getApplicationContext()).getRequestQueue();
         mVolleyHelper = new VolleyHelper(requestQueue,
                 (AppCompatActivity)getActivity(),mProgressDialog);
-        mVolleyHelper.setmRecommendNewsListener(this);
 
+        mVolleyHelper.setmHeadNewsListener(this);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_recommend, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_head_news, container, false);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.head_news_swiperefresh);
         mSwipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         mVolleyHelper.setSwipeRefreshLayout(mSwipeRefreshLayout);
 
-        setRecyclerView(rootView);
+         setRecyclerView(rootView);
 
-        mSwipeRefreshLayout.setOnRefreshListener(this);
+         mSwipeRefreshLayout.setOnRefreshListener(this);
 
-        mMyUser = mListener.onRecommendFragmentCall();
+         mMyUser = mListener.onHeadNewsFragmentCall();
+
+
 
         int count = mAdapter.getItemCount();
 
@@ -121,15 +117,14 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void setRecyclerView(View rootView)
     {
-
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
         RecyclerView.LayoutManager layoutManager = new
                 LinearLayoutManager(getActivity().getApplication());
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new RecommendListAdapter(getActivity().getApplicationContext(),mDataset);
+        mAdapter = new HeadNewsAdapter(getActivity().getApplicationContext(),mDataset);
         mAdapter.setFontSize(mFontSize);
-        mAdapter.setNewsClickListener((RecommendListAdapter.OnNewsClickListener) getActivity());
+        mAdapter.setNewsClickListener((HeadNewsAdapter.OnHeadNewsClickListener) getActivity());
         mRecyclerView.setAdapter(mAdapter);
 
         DividerItemDecoration dividerItemDecoration = new
@@ -144,17 +139,16 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
-    public void onAttach(Context context)
-    {
+    public void onAttach(Context context) {
         super.onAttach(context);
-        try
+        if (context instanceof OnHeadNewsFragmentInteractionListener)
         {
-            mListener = (OnRecommendFragmentListener) context;
-
-        } catch (ClassCastException e)
+            mListener = (OnHeadNewsFragmentInteractionListener) context;
+        }
+        else
         {
-            throw new ClassCastException(context.toString()
-                    + "must implement OnRecommendFragmentLister");
+            throw new RuntimeException(context.toString()
+                    + " must implement OnHeadNewsFragmentInteractionListener");
         }
     }
 
@@ -166,38 +160,54 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
-    public void onRefresh()
-    {
-        mIsRefresh = true;
-        readNews();
-    }
-
-    @Override
     public void onResume()
     {
         super.onResume();
         AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setTitle(R.string.bori_news);
+        appCompatActivity.getSupportActionBar().setTitle(R.string.nav_head_news);
 
     }
 
     private void readNews()
     {
         Log.i(TAG, "send news request");
+
+        requestHeadNews();
+        requestRcmdNews();
+
+    }
+
+    private void requestHeadNews()
+    {
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
-                VolleyHelper.RCMD_NEWS_URL);
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.jsonRequest(jsonObject,
+                VolleyHelper.HEAD_NEWS_URL);
+
+        jsonObjectRequest.setShouldCache(false);
 
         VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsonObjectRequest);
 
         if(false == mIsRefresh)
         {
-            mProgressDialog.setMessage("맞춤뉴스를 검색 중 입니다.");
+            String msg = getResources().getString(R.string.dlg_head_news);
+            mProgressDialog.setMessage(msg);
             mProgressDialog.show();
         }
 
+
     }
 
+    private void requestRcmdNews()
+    {
+
+        JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
+                VolleyHelper.RCMD_NEWS_URL);
+
+        jsonObjectRequest.setShouldCache(false);
+
+        VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsonObjectRequest);
+    }
 
     private void initDataSet()
     {
@@ -219,26 +229,22 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState)
+    public void onRefresh()
     {
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
+        mIsRefresh = true;
+        readNews();
     }
 
     @Override
     public void onNewsUpdate(NewsInfo newsInfo)
     {
         setDataSet(newsInfo);
+
     }
 
-    public interface OnRecommendFragmentListener
+    public interface OnHeadNewsFragmentInteractionListener
     {
-        MyUser onRecommendFragmentCall();
+        MyUser onHeadNewsFragmentCall();
     }
 
 

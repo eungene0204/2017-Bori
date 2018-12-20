@@ -146,9 +146,10 @@ public class WebViewActivity extends AppCompatActivity
         mMenu =  menu;
 
         getMenuInflater().inflate(R.menu.webview, menu);
-        MenuItem item = menu.findItem(R.id.action_share);
+        MenuItem shareItem = menu.findItem(R.id.action_share);
         MenuItem favItem = menu.findItem(R.id.action_fav);
 
+        /*
         FavNews favNews = new FavNews();
         favNews.setId(mId);
         if(isDuplicateNews(favNews))
@@ -158,11 +159,11 @@ public class WebViewActivity extends AppCompatActivity
         else
         {
             favItem.setIcon(R.drawable.ic_star_border_white_24dp);
-        }
+        } */
 
 
         mShareActionProvider = (ShareActionProvider)
-                MenuItemCompat.getActionProvider(item);
+                MenuItemCompat.getActionProvider(shareItem);
 
         setShareIntent(createShareIntent());
 
@@ -240,8 +241,7 @@ public class WebViewActivity extends AppCompatActivity
 
     private boolean isDuplicateNews(FavNews favNews)
     {
-         FavNews tempNews = RealmController.with(this).
-                getFavNews(favNews.getId());
+         FavNews tempNews = RealmController.with(this).getFavNews(favNews.getId());
 
         if(tempNews == null)
             return false;

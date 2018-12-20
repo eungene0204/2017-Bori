@@ -12,6 +12,13 @@ import io.realm.RealmResults;
  * Created by Eugene on 2017-09-01.
  */
 
+class Dog extends RealmObject {
+    private String name;
+    private int age;
+
+    // ... Generated getters and setters ...
+}
+
 public class RealmModelAdapter<T extends RealmObject> extends RealmBaseAdapter
 {
     public RealmModelAdapter(Context context, RealmResults realmResults, boolean automaticUpdate)
@@ -25,3 +32,4 @@ public class RealmModelAdapter<T extends RealmObject> extends RealmBaseAdapter
         return null;
     }
 }
+

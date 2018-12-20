@@ -2,7 +2,6 @@ package bori.bori.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,38 +9,80 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.util.Collections;
-import java.util.List;
-
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
 import bori.bori.news.News;
-
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
-/**
- * Created by Eugene on 2017-03-07.
- */
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdapter.ListItemViewHolder>
+public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListItemViewHolder>
 {
-    public static final String TAG = "ListAdapter";
-    private final Context mContext;
+    public static final String TAG = HeadNewsAdapter.class.getSimpleName();
+
+    private Context mContext;
     private List<News> mData = Collections.emptyList();
-    private int mFontSize;
+    private int mFontSize = 0;
 
-    private OnNewsClickListener mOnNewsClickListener;
+    private OnHeadNewsClickListener mOnNewsClickListener;
 
-    public RecommendListAdapter(Context context,  List<News> data)
+    public HeadNewsAdapter(Context mContext, List<News> data)
     {
-        mContext = context;
-        mData = data;
+        this.mContext = mContext;
+        this.mData = data;
     }
 
-    public void setNewsClickListener(OnNewsClickListener listener)
+    public void setNewsClickListener(OnHeadNewsClickListener listener)
     {
         mOnNewsClickListener = listener;
+    }
+
+
+    @Override
+    public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.row_item,parent, false);
+
+        ListItemViewHolder listItemViewHolder = new ListItemViewHolder(v,mContext);
+
+        return listItemViewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(ListItemViewHolder holder, int position)
+    {
+        News news = mData.get(position);
+
+
+
+       String title = news.getTitle();
+       holder.getTextView().setText(title);
+
+       ImageView imageView = holder.getImageView();
+       String imgUrl = news.getImgUrl();
+       setImageSrc(imgUrl,position,imageView);
+
+       holder.setNews(news);
+    }
+
+
+
+    private void setImageSrc(String url, int position, ImageView imageView)
+    {
+       Log.i(TAG,mData.get(position).getTitle()) ;
+       Log.i(TAG,url);
+       UrlImageViewHelper.setUrlDrawable(imageView,url, R.drawable.ic_rss_feed_grey_24dp,6000);
+
+    }
+
+
+    @Override
+    public int getItemCount()
+    {
+        return mData.size();
     }
 
     public class ListItemViewHolder extends RecyclerView.ViewHolder
@@ -53,25 +94,24 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         private final TextView mTextView;
         private final ImageView mImageView;
 
-
-        public ListItemViewHolder(View v, Context context)
+        public ListItemViewHolder(View itemView,Context context)
         {
-            super(v);
+            super(itemView);
             mContext = context;
-            v.setOnClickListener(new View.OnClickListener()
+
+            itemView.setOnClickListener(new View.OnClickListener()
             {
                 @Override
                 public void onClick(View v)
                 {
                     setFontSize(mOnNewsClickListener.onSetFontSize());
                     startWebViewActivity(getNews());
-                }
 
+                }
             });
 
-            mTextView = (TextView) v.findViewById(R.id.row_textview);
-            mImageView = (ImageView) v.findViewById(R.id.row_imageview);
-
+            mTextView = (TextView) itemView.findViewById(R.id.row_textview);
+            mImageView = (ImageView) itemView.findViewById(R.id.row_imageview);
         }
 
         private void startWebViewActivity(News news)
@@ -106,47 +146,7 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         {
             mNews = news;
         }
-    }
 
-    @Override
-    public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
-    {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_item,parent,false);
-
-        ListItemViewHolder listItemViewHolder = new ListItemViewHolder(v,mContext);
-
-        return listItemViewHolder;
-    }
-
-    @Override
-    public void onBindViewHolder(ListItemViewHolder holder, int position)
-    {
-       News news = mData.get(position);
-
-       String title = news.getTitle();
-       holder.getTextView().setText(title);
-
-       ImageView imageView = holder.getImageView();
-       String imgUrl = news.getImgUrl();
-       setImageSrc(imgUrl,position,imageView);
-
-       holder.setNews(news);
-
-    }
-
-    private void setImageSrc(String url, int position, ImageView imageView)
-    {
-       Log.i(TAG,mData.get(position).getTitle()) ;
-       Log.i(TAG,url);
-       UrlImageViewHelper.setUrlDrawable(imageView,url, R.drawable.ic_rss_feed_grey_24dp,6000);
-
-    }
-
-    @Override
-    public int getItemCount()
-    {
-        return mData.size();
     }
 
     public int getFontSize()
@@ -159,7 +159,8 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         mFontSize = fontSize;
     }
 
-    public interface OnNewsClickListener
+
+    public interface OnHeadNewsClickListener
     {
         int onSetFontSize();
     }

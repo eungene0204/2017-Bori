@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import bori.bori.R;
+import bori.bori.utility.FontUtils;
 
 public class FontSizeAcitivity extends AppCompatActivity
 {
@@ -47,7 +48,7 @@ public class FontSizeAcitivity extends AppCompatActivity
 
         Intent intent = getIntent();
         if(null != intent)
-            mFontSize = intent.getIntExtra(MainActivity.KEY_FONT_SIZE, (int) mMiddle);
+            mFontSize = intent.getIntExtra(FontUtils.KEY_FONT_SIZE, (int) mMiddle);
 
         setCheckedButton(mFontSize);
 
@@ -84,7 +85,7 @@ public class FontSizeAcitivity extends AppCompatActivity
 
                 }
                 Intent intent = new Intent();
-                intent.putExtra(MainActivity.KEY_FONT_SIZE, fontSize);
+                intent.putExtra(FontUtils.KEY_FONT_SIZE, fontSize);
                 setResult(Activity.RESULT_OK, intent);
             }
         });

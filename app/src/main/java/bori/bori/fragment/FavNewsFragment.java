@@ -23,6 +23,7 @@ import bori.bori.adapter.RecommendListAdapter;
 import bori.bori.news.News;
 import bori.bori.realm.FavNews;
 import bori.bori.realm.RealmController;
+import bori.bori.utility.FontUtils;
 import bori.bori.utility.SwipeUtil;
 import io.realm.RealmResults;
 
@@ -59,7 +60,7 @@ public class FavNewsFragment extends Fragment
         Bundle bundle = getArguments();
         if(bundle != null)
         {
-            mFontSize = bundle.getInt(MainActivity.KEY_FONT_SIZE);
+            mFontSize = bundle.getInt(FontUtils.KEY_FONT_SIZE);
         }
         else
         {

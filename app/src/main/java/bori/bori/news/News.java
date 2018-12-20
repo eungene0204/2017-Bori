@@ -6,12 +6,16 @@ package bori.bori.news;
 
 public class News
 {
+    public static String KEY_NEWS_TYPE = "news_type";
+    public static String KEY_HEAD_LINE_NEWS = "head_line_news";
+    public static String KEY_RECOMMEND_NEWS = "recommend_news";
     public static String KEY_ID ="id";
     public static String KEY_URL = "url";
     public static String KEY_TITLE = "title";
     public static String KEY_IMG_URL = "imgUrl";
     public static String KEY_FONT_SIZE = "fontSize";
 
+    private String mNewsType;
     private String mTitle;
     private String mLink;
     private String mImgSrc;
@@ -56,5 +60,15 @@ public class News
     public void setImgUrl(String imgSrc)
     {
         mImgSrc = imgSrc;
+    }
+
+    public String getNewsType()
+    {
+        return mNewsType;
+    }
+
+    public void setNewsType(String mNewsType)
+    {
+        this.mNewsType = mNewsType;
     }
 }

@@ -32,6 +32,7 @@ import io.realm.RealmResults;
  * Created by Eugene on 2017-09-01.
  */
 
+
 public class FavNewsAdapter extends RealmRecyclerViewAdapter<FavNews>
 {
     private final String TAG = "FavNewsAdapter";
@@ -284,25 +285,12 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter<FavNews>
                 @Override
                 public void onClick(View v)
                 {
-                     setFontSize(mOnNewsClickListener.onNewsClicked());
+                     setFontSize(mOnNewsClickListener.onSetFontSize());
                         startWebViewActivity();
 
                 }
             });
 
-
-            /*
-            v.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-
-                    setFontSize(mOnNewsClickListener.onNewsClicked());
-                    startWebViewActivity();
-
-                }
-            }); */
 
         }
 
@@ -351,7 +339,5 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter<FavNews>
             return mImageView;
         }
     } //end of viewholder
-
-
-
 }
+

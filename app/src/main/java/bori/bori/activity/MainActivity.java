@@ -1,7 +1,5 @@
 package bori.bori.activity;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,38 +21,36 @@ import android.widget.TextView;
 
 import bori.bori.R;
 
+import bori.bori.adapter.HeadNewsAdapter;
+import bori.bori.fragment.HeadNewsFragment;
+import bori.bori.utility.FontUtils;
+import bori.bori.utility.JsonUtils;
+import bori.bori.volley.VolleyHelper;
+import bori.bori.volley.VolleySingleton;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
-import com.twitter.sdk.android.tweetui.UserTimeline;
 
-
-import java.util.ArrayList;
 
 import bori.bori.adapter.RecommendListAdapter;
 import bori.bori.auth.SessionManager;
 import bori.bori.fragment.FavNewsFragment;
 import bori.bori.fragment.RecommendFragment;
-import bori.bori.news.News;
 import bori.bori.user.MyUser;
-import bori.bori.volley.VolleyHelper;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RecommendFragment.OnRecommendFragmentListener
-    ,RecommendListAdapter.OnNewsClickListener
+    ,RecommendListAdapter.OnNewsClickListener,HeadNewsFragment.OnHeadNewsFragmentInteractionListener,HeadNewsAdapter.OnHeadNewsClickListener
 {
 
     private static final String TAG = "MainActivity";
-
-    public static final String KEY_FONT_SIZE = "fontSIze";
-    public static final int REQUEST_FONT_SIZE = 1;
-
     // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
     private static final String TWITTER_KEY = "mYh1sti2PMGKmiU0C8pPLbGGl";
     private static final String TWITTER_SECRET = "0Kf8DNw8HklsHnINLGOPRryZMo3EvSCJvIL0Edh9JKS6ShCfx1";
@@ -91,8 +86,8 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null)
         {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            RecommendFragment fragment = new RecommendFragment();
-            transaction.add(R.id.fragment_container,fragment, RecommendFragment.TAG);
+            HeadNewsFragment fragment = new HeadNewsFragment();
+            transaction.add(R.id.fragment_container,fragment, HeadNewsFragment.TAG);
             transaction.commit();
         }
 
@@ -227,7 +222,29 @@ public class MainActivity extends AppCompatActivity
 
         Fragment fragment = null;
         String fragmentTag= null;
-        if (id == R.id.nav_news)
+        if ( id == R.id.nav_head_news)
+        {
+            Fragment tempFragment = getSupportFragmentManager()
+                    .findFragmentByTag(HeadNewsFragment.TAG);
+
+            if(tempFragment == null)
+            {
+                fragment = new HeadNewsFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
+                fragment.setArguments(bundle);
+                fragmentTag = HeadNewsFragment.TAG;
+            }
+            else
+            {
+                if(!tempFragment.isVisible())
+                {
+                    fragment = tempFragment;
+                }
+            }
+
+        }
+        else if (id == R.id.nav_rcmd_news)
         {
             Fragment tempFragment = getSupportFragmentManager()
                     .findFragmentByTag(RecommendFragment.TAG);
@@ -236,7 +253,7 @@ public class MainActivity extends AppCompatActivity
             {
                 fragment = new RecommendFragment();
                 Bundle bundle = new Bundle();
-                bundle.putInt(KEY_FONT_SIZE, mWebViewFontSize);
+                bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
                 fragment.setArguments(bundle);
                 fragmentTag = RecommendFragment.TAG;
             }
@@ -252,7 +269,7 @@ public class MainActivity extends AppCompatActivity
         {
             fragment = new FavNewsFragment();
             Bundle bundle = new Bundle();
-            bundle.putInt(KEY_FONT_SIZE, mWebViewFontSize);
+            bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
             fragment.setArguments(bundle);
         }
         else if (id == R.id.nav_font_size)
@@ -288,19 +305,19 @@ public class MainActivity extends AppCompatActivity
     private void startFontSizeActivity()
     {
         Intent intent = new Intent(this, FontSizeAcitivity.class);
-        intent.putExtra(KEY_FONT_SIZE,mWebViewFontSize);
+        intent.putExtra(FontUtils.KEY_FONT_SIZE,mWebViewFontSize);
 
-        startActivityForResult(intent, REQUEST_FONT_SIZE);
+        startActivityForResult(intent, FontUtils.REQUEST_FONT_SIZE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        if(requestCode == REQUEST_FONT_SIZE)
+        if(requestCode == FontUtils.REQUEST_FONT_SIZE)
         {
             if(resultCode == RESULT_OK)
             {
-                int result = data.getIntExtra(KEY_FONT_SIZE, (int)
+                int result = data.getIntExtra(FontUtils.KEY_FONT_SIZE, (int)
                         getResources().getDimension(R.dimen.webview_text_size_middle));
 
                 mWebViewFontSize = result;
@@ -370,9 +387,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public int onNewsClicked()
+    public int onSetFontSize()
     {
         return mWebViewFontSize;
     }
 
+    @Override
+    public MyUser onHeadNewsFragmentCall()
+    {
+        return mMyUser;
+    }
 }
