@@ -17,7 +17,7 @@ import bori.bori.singleton.AppSingleton;
  * Created by Eugene on 2017-02-27.
  */
 
-public class MyUser
+public class MyUser implements Parcelable
 {
     private static final String TAG = "MyUser";
     public static final String KEY_MYUSER = "MyUser";
@@ -29,6 +29,30 @@ public class MyUser
     private String mEmail;
     private String mPofile_url;
     private Bitmap mBitmap;
+
+    protected MyUser(Parcel in)
+    {
+        mName = in.readString();
+        mScreenName = in.readString();
+        mEmail = in.readString();
+        mPofile_url = in.readString();
+        mBitmap = in.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public static final Creator<MyUser> CREATOR = new Creator<MyUser>()
+    {
+        @Override
+        public MyUser createFromParcel(Parcel in)
+        {
+            return new MyUser(in);
+        }
+
+        @Override
+        public MyUser[] newArray(int size)
+        {
+            return new MyUser[size];
+        }
+    };
 
     public String getScreenName()
     {
@@ -85,4 +109,19 @@ public class MyUser
         return mEmail;
     }
 
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i)
+    {
+        parcel.writeString(mName);
+        parcel.writeString(mScreenName);
+        parcel.writeString(mEmail);
+        parcel.writeString(mPofile_url);
+        parcel.writeParcelable(mBitmap, i);
+    }
 }

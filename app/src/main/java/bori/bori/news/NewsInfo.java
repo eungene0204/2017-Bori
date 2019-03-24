@@ -4,6 +4,8 @@ import java.util.List;
 
 public class NewsInfo
 {
+    public  final static String TAG = "NewsInfo";
+
     private List<News> mNewsList = null;
     private String mNewsType ;
 

@@ -2,7 +2,9 @@ package bori.bori.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.RecyclerView;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,6 @@ import bori.bori.activity.WebViewActivity;
 import bori.bori.news.News;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
     public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_item,parent, false);
+                .inflate(R.layout.head_news_item,parent, false);
 
         ListItemViewHolder listItemViewHolder = new ListItemViewHolder(v,mContext);
 
@@ -56,25 +57,59 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
     {
         News news = mData.get(position);
 
+        setSourceLogo(news.getSourceLogo(), holder);
+        String sourceText = news.getSource();
+        holder.mSourceText.setText(sourceText);
 
+        String title = news.getTitle();
+        holder.mTitleText.setText(title);
 
-       String title = news.getTitle();
-       holder.getTextView().setText(title);
+        setNewsImg(holder, news, position);
 
-       ImageView imageView = holder.getImageView();
-       String imgUrl = news.getImgUrl();
-       setImageSrc(imgUrl,position,imageView);
+        String date = news.getDate();
+        holder.mDateText.setText(date);
 
-       holder.setNews(news);
+        holder.setNews(news);
+    }
+
+    private void setNewsImg(ListItemViewHolder holder, News news, int position)
+    {
+        ImageView imageView = holder.mNewsImg;
+        String imgUrl = news.getImgUrl();
+
+        if(imgUrl.isEmpty())
+        {
+            imageView.setVisibility(View.GONE);
+        }
+        else
+        {
+            setImageSrc(imgUrl,position,imageView,news);
+        }
+
+    }
+
+    private void setSourceLogo(Drawable logo, ListItemViewHolder holder)
+    {
+        if(null != logo)
+        {
+            holder.mSourceImg.setImageDrawable(logo);
+            holder.mSourceText.setVisibility(View.INVISIBLE);
+            holder.mSourceImg.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            holder.mSourceImg.setVisibility(View.INVISIBLE);
+            holder.mSourceText.setVisibility(View.VISIBLE);
+        }
+
     }
 
 
-
-    private void setImageSrc(String url, int position, ImageView imageView)
+    private void setImageSrc(String url, int position, ImageView imageView, News news)
     {
        Log.i(TAG,mData.get(position).getTitle()) ;
        Log.i(TAG,url);
-       UrlImageViewHelper.setUrlDrawable(imageView,url, R.drawable.ic_rss_feed_grey_24dp,6000);
+       UrlImageViewHelper.setUrlDrawable(imageView,url, news.getSourceLogo(),6000);
 
     }
 
@@ -91,8 +126,13 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
 
         private News mNews;
 
-        private final TextView mTextView;
-        private final ImageView mImageView;
+        public final TextView mSourceText;
+        public final ImageView mSourceImg;
+        public final TextView mTitleText;
+        public final ImageView mNewsImg;
+        public final TextView  mDateText;
+        public final ImageView mOverflowImg;
+
 
         public ListItemViewHolder(View itemView,Context context)
         {
@@ -110,8 +150,23 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
                 }
             });
 
-            mTextView = (TextView) itemView.findViewById(R.id.row_textview);
-            mImageView = (ImageView) itemView.findViewById(R.id.row_imageview);
+            mSourceText = itemView.findViewById(R.id.source_text);
+            mSourceImg = itemView.findViewById(R.id.source_img);
+            mTitleText= itemView.findViewById(R.id.title_text);
+            mNewsImg = itemView.findViewById(R.id.news_img);
+            mDateText = itemView.findViewById(R.id.date);
+            mOverflowImg = itemView.findViewById(R.id.overflow_img);
+
+            setRoundedImg();
+
+        }
+
+        private void setRoundedImg()
+        {
+            GradientDrawable drawable = (GradientDrawable) mContext.getDrawable(R.drawable.round_background);
+            mNewsImg.setBackground(drawable);
+            mNewsImg.setClipToOutline(true);
+
         }
 
         private void startWebViewActivity(News news)
@@ -128,14 +183,8 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
             mContext.startActivity(intent);
         }
 
-        public TextView getTextView()
-        {
-            return mTextView;
-        }
-        public ImageView getImageView()
-        {
-            return mImageView;
-        }
+        //public TextView getTextView() { return mTextView; }
+        //public ImageView getImageView() { return mImageView; }
 
         public News getNews()
         {

@@ -1,10 +1,13 @@
 package bori.bori.volley;
 
 import android.app.ProgressDialog;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
+import bori.bori.news.NewsHelper;
 import bori.bori.news.NewsInfo;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -14,18 +17,14 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 
 import bori.bori.news.News;
-import org.jsoup.select.Elements;
 
 /**
  * Created by Eugene on 2017-07-18.
@@ -35,7 +34,7 @@ public class VolleyHelper
 {
     static final private String TAG = "VolleyHelper";
 
-    static final private String LOCAL = "http://125.143.191.148:8000/bori";
+    static final private String LOCAL = "http://121.167.131.96:8000/bori";
     static final public String HEAD_NEWS_URL = LOCAL + "/head";
     static final public String RCMD_NEWS_URL = LOCAL + "/rcmd";
 
@@ -59,12 +58,16 @@ public class VolleyHelper
     private OnVolleyHelperHeadNewsListener mHeadNewsListener;
     private OnVolleyHelperRecommendNewsListener mRecommendNewsListener;
 
+    private NewsHelper mNewsHelpler;
+
     public VolleyHelper(final RequestQueue requestQueue, AppCompatActivity activity,
                         ProgressDialog progressDialog)
     {
         this.mRequestQueue = requestQueue;
         this.mActivity = activity;
         mProgressDialog = progressDialog;
+
+        this.mNewsHelpler = new NewsHelper(mActivity);
     }
 
 
@@ -179,20 +182,45 @@ public class VolleyHelper
     {
 
         Log.i(TAG,"updateNews");
+        Log.i(TAG,"NewsType: " + newsType);
 
-        Log.i(TAG,"NewsType");
-        Log.i(TAG,newsType);
+        try
+        {
+            if(News.KEY_HEAD_LINE_NEWS.equals(newsType))
+            {
+                Log.i(TAG,"update HEAD  NEWS");
+                mHeadNewsListener.onNewsUpdate(newsInfo);
+            }
+            else if( News.KEY_RECOMMEND_NEWS.equals(newsType))
+            {
+                Log.i(TAG,"update RECM NEWS");
 
-        if(null != mHeadNewsListener && News.KEY_HEAD_LINE_NEWS.equals(newsType))
-        {
-            Log.i(TAG,"update head news!!!!");
-            mHeadNewsListener.onNewsUpdate(newsInfo);
+                if(mRecommendNewsListener != null)
+                {
+                    mRecommendNewsListener.onNewsUpdate(newsInfo);
+                }
+
+                //saveRcmdNewsInfo(newsInfo);
+            }
+
         }
-        else if(null != mRecommendNewsListener && News.KEY_RECOMMEND_NEWS.equals(newsType))
+        catch (NullPointerException e)
         {
-            Log.i(TAG,"update RECM NEWS");
-            mRecommendNewsListener.onNewsUpdate(newsInfo);
+            Log.e(TAG, e.toString());
         }
+
+
+    }
+    private void saveRcmdNewsInfo(NewsInfo newsInfo)
+    {
+        SharedPreferences prefs = mActivity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        Gson gson = new Gson();
+
+        String json = gson.toJson(newsInfo);
+
+        editor.putString(NewsInfo.TAG,json);
+        editor.commit();
 
     }
 
@@ -203,15 +231,16 @@ public class VolleyHelper
 
         ArrayList<News> newsArrayList = new ArrayList<News>();
         String newsType ="";
+        String category = "";
 
         try
         {
 
             newsType = response.getString(News.KEY_NEWS_TYPE);
+
             JSONArray jsonArray = response.getJSONArray("news_list");
 
-
-            newsArrayList = getNewsInfo(jsonArray, newsType);
+            newsArrayList = mNewsHelpler.getNewsInfo(jsonArray, newsType);
 
         }
         catch (JSONException e)
@@ -225,118 +254,6 @@ public class VolleyHelper
         return newsInfo;
 
     }
-
-    private ArrayList getNewsInfo(JSONArray jsonArray, String newsType)
-    {
-
-        ArrayList<News> newsArrayList = new ArrayList<News>();
-
-        for(int i=0; i < jsonArray.length(); i++)
-        {
-            News news = new News();
-            String id = "";
-            String title = "";
-            String link = "";
-            String imgSrc = "";
-
-            JSONObject jsonObject  = null;
-            try
-            {
-                jsonObject = jsonArray.getJSONObject(i);
-
-                id = jsonObject.getString("id");
-                title = jsonObject.getString("title");
-                link = jsonObject.getString("link");
-                //imgSrc = jsonObject.getString("img src");
-                imgSrc = getImgSrc(jsonObject);
-
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-                continue;
-            }
-            finally
-            {
-                news.setNewsType(newsType);
-                news.setId(id);
-                news.setTitle(title);
-                news.setUrl(link);
-                news.setImgUrl(imgSrc);
-
-                newsArrayList.add(news);
-            }
-
-        }
-
-        return newsArrayList;
-    }
-
-    private String getImgSrc(JSONObject jsonObject)
-    {
-        String img_src = "";
-
-        try
-        {
-
-            String json = jsonObject.getString("media_content");
-
-            JSONArray jsonArray = new JSONArray(json);
-
-            for(int i=0; i < jsonArray.length(); i++)
-            {
-                JSONObject jobject = jsonArray.optJSONObject(i);
-                img_src = jobject.getString("url");
-            }
-
-
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
-
-        if( !img_src.isEmpty())
-            return img_src;
-
-
-        try
-        {
-            img_src = jsonObject.getString("img_src");
-
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
-
-        if( !img_src.isEmpty())
-            return img_src;
-
-        try
-        {
-
-            String  html = "";
-            html = jsonObject.getString("summary");
-
-            Document doc = Jsoup.parse(html);
-            Element link = doc.selectFirst("img[src]");
-            img_src = link.attr("src");
-        }
-        catch (NullPointerException e)
-        {
-            return img_src;
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
-
-        return img_src;
-
-    }
-
-
 
     private String getHttpheader(String url)
     {

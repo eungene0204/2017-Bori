@@ -3,17 +3,20 @@ package bori.bori.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import bori.bori.fragment.UserBottomSheetDialogFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -27,6 +30,7 @@ import bori.bori.utility.FontUtils;
 import bori.bori.utility.JsonUtils;
 import bori.bori.volley.VolleyHelper;
 import bori.bori.volley.VolleySingleton;
+import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -66,11 +70,14 @@ public class MainActivity extends AppCompatActivity
 
     private int mWebViewFontSize;
 
+    private BottomNavigationView mBottomNavigationView;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient mClient;
+    private VolleyHelper mVolleyHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -86,8 +93,8 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null)
         {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            HeadNewsFragment fragment = new HeadNewsFragment();
-            transaction.add(R.id.fragment_container,fragment, HeadNewsFragment.TAG);
+            RecommendFragment fragment = new RecommendFragment();
+            transaction.add(R.id.fragment_container,fragment, RecommendFragment.TAG);
             transaction.commit();
         }
 
@@ -96,8 +103,87 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(getString(R.string.bori_news));
+        setToolbarTitle(toolbar);
 
+        mBottomNavigationView = findViewById(R.id.bottom_navigation);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener()
+        {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item)
+            {
+                Fragment fragment = null;
+                Fragment tempFragment = null;
+                String fragmentTag = null;
+
+                switch (item.getItemId())
+                {
+                    case R.id.btm_nav_rmcd_news:
+                        tempFragment = getSupportFragmentManager()
+                                .findFragmentByTag(RecommendFragment.TAG);
+
+                        if(tempFragment == null)
+                        {
+                            fragment = new RecommendFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
+                            fragment.setArguments(bundle);
+                            fragmentTag = RecommendFragment.TAG;
+                        }
+                        else
+                        {
+                            if(!tempFragment.isVisible())
+                            {
+                                fragment = tempFragment;
+                            }
+                        }
+
+                        if(null != fragment)
+                        {
+                            replaceFragment(fragment,fragmentTag);
+                        }
+
+                        return true;
+
+                    case R.id.btm_nav_head_news:
+                        tempFragment = getSupportFragmentManager()
+                                .findFragmentByTag(HeadNewsFragment.TAG);
+
+                        if(tempFragment == null)
+                        {
+                            fragment = new HeadNewsFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
+                            fragment.setArguments(bundle);
+                            fragmentTag = HeadNewsFragment.TAG;
+                        }
+                        else
+                        {
+                            if(!tempFragment.isVisible())
+                            {
+                                fragment = tempFragment;
+                            }
+                        }
+
+                        if(null != fragment)
+                        {
+                            replaceFragment(fragment,fragmentTag);
+                        }
+
+                        return true;
+
+                    case R.id.btm_nav_fav:
+                        return true;
+
+                    case R.id.btm_nav_stat:
+                        return true;
+                }
+                return false;
+            }
+        });
+
+
+
+        /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -119,7 +205,11 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         setNavigationView();
+        */
+
         setProfilePic(mMyUser.getProfileUrl());
+
+        //requestRcmdNews();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -127,8 +217,40 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void setToolbarTitle(Toolbar toolbar)
+    {
+        TextView titleView = toolbar.findViewById(R.id.toolbar_main_tile);
+        titleView.setText(getResources().getString(R.string.bori_news));
+    }
+
+
+    private void requestRcmdNews()
+    {
+        initVolley();
+
+        JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
+                VolleyHelper.RCMD_NEWS_URL);
+
+        jsonObjectRequest.setShouldCache(false);
+
+        VolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
+    }
+
+    private void initVolley()
+    {
+
+        RequestQueue requestQueue;
+        requestQueue = VolleySingleton.getInstance
+                 (this.getApplicationContext()).getRequestQueue();
+        mVolleyHelper = new VolleyHelper(requestQueue,
+                this,null);
+
+    }
+
     private void setNavigationView()
     {
+        /*
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View header = navigationView.getHeaderView(0);
@@ -140,6 +262,7 @@ public class MainActivity extends AppCompatActivity
 
         mUserNameTextView.setText(mMyUser.getScreenName());
         mUserEmailTextView.setText(mMyUser.getEmail());
+        */
 
     }
 
@@ -170,13 +293,43 @@ public class MainActivity extends AppCompatActivity
 
     public void setProfilePic (String url)
     {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        mUserImageView = (ImageView) toolbar.findViewById(R.id.user_profile_pic);
+
+        mUserImageView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                showUserBottomSheet();
+
+            }
+        });
+
         UrlImageViewHelper.setUrlDrawable(mUserImageView,url);
+    }
+
+    private void showUserBottomSheet()
+    {
+        UserBottomSheetDialogFragment userBottomSheetDialogFragment =
+                UserBottomSheetDialogFragment.newInstance();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(MyUser.KEY_MYUSER, mMyUser);
+
+        userBottomSheetDialogFragment.setArguments(bundle);
+
+        userBottomSheetDialogFragment.show(getSupportFragmentManager(),
+                UserBottomSheetDialogFragment.TAG);
+
     }
 
 
     @Override
     public void onBackPressed()
     {
+
+        /*
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
         {
@@ -184,7 +337,8 @@ public class MainActivity extends AppCompatActivity
         } else
         {
             super.onBackPressed();
-        }
+        } */
+
     }
 
     @Override
@@ -224,24 +378,6 @@ public class MainActivity extends AppCompatActivity
         String fragmentTag= null;
         if ( id == R.id.nav_head_news)
         {
-            Fragment tempFragment = getSupportFragmentManager()
-                    .findFragmentByTag(HeadNewsFragment.TAG);
-
-            if(tempFragment == null)
-            {
-                fragment = new HeadNewsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
-                fragment.setArguments(bundle);
-                fragmentTag = HeadNewsFragment.TAG;
-            }
-            else
-            {
-                if(!tempFragment.isVisible())
-                {
-                    fragment = tempFragment;
-                }
-            }
 
         }
         else if (id == R.id.nav_rcmd_news)
@@ -287,8 +423,8 @@ public class MainActivity extends AppCompatActivity
             replaceFragment(fragment,fragmentTag);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        //drawer.closeDrawer(GravityCompat.START);
 
         return true;
     }

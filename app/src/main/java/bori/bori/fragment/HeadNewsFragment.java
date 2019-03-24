@@ -2,15 +2,14 @@ package bori.bori.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +76,7 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
     {
 
         RequestQueue requestQueue =
-                VolleySingleton.getInstance
+               VolleySingleton.getInstance
                         (getActivity().getApplicationContext()).getRequestQueue();
         mVolleyHelper = new VolleyHelper(requestQueue,
                 (AppCompatActivity)getActivity(),mProgressDialog);
@@ -102,8 +101,6 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
          mSwipeRefreshLayout.setOnRefreshListener(this);
 
          mMyUser = mListener.onHeadNewsFragmentCall();
-
-
 
         int count = mAdapter.getItemCount();
 
@@ -171,9 +168,7 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
     private void readNews()
     {
         Log.i(TAG, "send news request");
-
         requestHeadNews();
-        requestRcmdNews();
 
     }
 
@@ -194,20 +189,8 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
             mProgressDialog.show();
         }
 
-
     }
 
-    private void requestRcmdNews()
-    {
-
-        JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
-                VolleyHelper.RCMD_NEWS_URL);
-
-        jsonObjectRequest.setShouldCache(false);
-
-        VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsonObjectRequest);
-    }
 
     private void initDataSet()
     {

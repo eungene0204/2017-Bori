@@ -2,39 +2,104 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:orientation="horizontal"
-              android:background="?attr/selectableItemBackground"
-    >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#fafafa"
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:background="@color/colorPrimary"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
         >
 
-        <ImageView
-            android:id="@+id/row_imageview"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
+            <ImageView
+                    android:id="@+id/source_img"
+                    android:layout_width="50dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    tools:src="@drawable/busan"
             />
 
-        <TextView
-            android:id="@+id/row_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="test"
-            android:textSize="15dp"
-            android:layout_toLeftOf="@id/row_imageview"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="3dp"
+            <TextView
+                    android:id="@+id/source_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    android:textSize="13dp"
+                    tools:text="문화일보"
             />
 
-    </RelativeLayout>
+
+            <TextView
+                    android:id="@+id/title_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="test tset test test"
+                    android:textSize="18dp"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:layout_toLeftOf="@id/news_img"
+                    android:layout_below="@id/source_img"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+            />
+
+
+            <ImageView
+                    android:id="@+id/news_img"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginRight="10dp"
+                    tools:src="@drawable/insight"
+            />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+        >
+
+            <TextView
+                    android:id="@+id/date"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentBottom="true"
+                    tools:text="19-6-22"
+                    android:textSize="13dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_centerVertical="true"
+            />
+
+            <ImageView
+                    android:id="@+id/overflow_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="1dp"
+                    android:layout_centerVertical="true"
+                    android:backgroundTint="@color/GreyPrimary"
+
+                    android:src="@drawable/ic_overflow"
+            />
+
+
+        </RelativeLayout>
 
 </LinearLayout>

@@ -2,15 +2,16 @@ package bori.bori.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import bori.bori.utility.JsonUtils;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import com.google.gson.Gson;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -53,7 +55,6 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     private VolleyHelper mVolleyHelper;
     private ProgressDialog mProgressDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ArrayList<News> mNewsArrayList;
 
     private boolean mIsRefresh = false;
     private int mFontSize;
@@ -79,6 +80,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
         }
 
     }
+
 
     private void initVolley()
     {
@@ -109,20 +111,38 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
         mMyUser = mListener.onRecommendFragmentCall();
 
-        int count = mAdapter.getItemCount();
 
+        //getNewsInfo();
+
+        int count = mAdapter.getItemCount();
         if( mMyUser != null && (count == 0))
         {
             readNews();
         }
 
+
         return rootView;
     }
+
+     private void getNewsInfo()
+    {
+        SharedPreferences prfs = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+        Gson gson = new Gson();
+        String json = prfs.getString(NewsInfo.TAG,"");
+        NewsInfo newsInfo = gson.fromJson(json,NewsInfo.class);
+
+        if(newsInfo != null)
+        {
+            setDataSet(newsInfo);
+        }
+    }
+
 
     private void setRecyclerView(View rootView)
     {
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        mRecyclerView =  rootView.findViewById(R.id.list);
         RecyclerView.LayoutManager layoutManager = new
                 LinearLayoutManager(getActivity().getApplication());
         mRecyclerView.setLayoutManager(layoutManager);
@@ -139,7 +159,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
         dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getActivity(),
                 R.drawable.divider));
 
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
+        //mRecyclerView.addItemDecoration(dividerItemDecoration);
 
     }
 

@@ -1,26 +1,22 @@
 package bori.bori.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 import bori.bori.R;
-import bori.bori.activity.MainActivity;
 import bori.bori.adapter.FavNewsAdapter;
 import bori.bori.adapter.RealmFavNewsAdapter;
 import bori.bori.adapter.RecommendListAdapter;
-import bori.bori.news.News;
 import bori.bori.realm.FavNews;
 import bori.bori.realm.RealmController;
 import bori.bori.utility.FontUtils;

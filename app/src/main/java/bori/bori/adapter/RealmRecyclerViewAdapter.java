@@ -1,6 +1,6 @@
 package bori.bori.adapter;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import io.realm.RealmBaseAdapter;
