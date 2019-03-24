@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal"
-              android:background="?attr/selectableItemBackground"
-    >
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <RelativeLayout
+     <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_view"
+            android:layout_gravity = "center"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            app:cardCornerRadius="4dp">
+             <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -14,16 +19,15 @@
         >
 
         <ImageView
-            android:id="@+id/row_imageview"
+            android:id="@+id/card_imgview"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             />
 
-
         <TextView
-            android:id="@+id/row_textview"
+            android:id="@+id/card_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="test"
@@ -37,5 +41,7 @@
             />
 
     </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
