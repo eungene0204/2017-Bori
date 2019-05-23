@@ -4,6 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.widget.ProgressBar;
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,11 +19,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Collections;
 import java.util.List;
 
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
+import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
 
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
@@ -25,19 +32,53 @@ import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
  * Created by Eugene on 2017-03-07.
  */
 
-public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdapter.ListItemViewHolder>
+public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 {
-    public static final String TAG = "ListAdapter";
+    public static final String TAG = "RcmdAdapter";
+
+    public final static int VIEW_TYPE_NEWS = 0;
+    public final static int VIEW_TYPE_LOADING = 1;
+
     private final Context mContext;
-    private List<News> mData = Collections.emptyList();
+    private final FragmentManager mFragmentManager;
+    private List<News> mNewsList;
     private int mFontSize;
+
+    private int mVisibleThreshold = 5;
+    private int mLastVisibleItem, mTotalItemCount;
+    private boolean mIsLoading;
+    private OnLoadMoreListener mOnLoadMoreListener;
+
 
     private OnNewsClickListener mOnNewsClickListener;
 
-    public RecommendListAdapter(Context context,  List<News> data)
+    public RecommendListAdapter(Context context,  List<News> newsList, FragmentManager fragmentManager, RecyclerView recyclerView)
+
     {
         mContext = context;
-        mData = data;
+        mNewsList = newsList;
+        mFragmentManager = fragmentManager;
+
+        final LinearLayoutManager linearLayoutManager = (LinearLayoutManager)
+                recyclerView.getLayoutManager();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+            {
+                super.onScrolled(recyclerView, dx, dy);
+                mTotalItemCount = linearLayoutManager.getItemCount();
+                mLastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                if(!mIsLoading && mTotalItemCount <= (mLastVisibleItem +mVisibleThreshold))
+                {
+                    if(mOnLoadMoreListener != null)
+                    {
+                        mOnLoadMoreListener.onLoadMore();
+                    }
+                    mIsLoading = true;
+                }
+            }
+        });
     }
 
     public void setNewsClickListener(OnNewsClickListener listener)
@@ -45,12 +86,27 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         mOnNewsClickListener = listener;
     }
 
-    public class ListItemViewHolder extends RecyclerView.ViewHolder
+    public void add(int position,News news)
+    {
+        mNewsList.add(position, news);
+        notifyItemInserted(position);
+    }
+
+    public void remove(News news)
+    {
+        int position = mNewsList.indexOf(news);
+        mNewsList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+
+    public class NewsViewHolder extends RecyclerView.ViewHolder
     {
         private Context mContext;
 
         private News mNews;
 
+        public View mLevelBar;
         public TextView mTitleView;
         public ImageView mNewsImgView;
         public TextView mCategoryView;
@@ -58,25 +114,18 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         public TextView mDateView;
         public ImageView mCardOverFlow;
         public ImageView mSourceLogo;
+        public CardView mCardView;
 
-        public ListItemViewHolder(View v, Context context)
+        public NewsViewHolder(View v, Context context)
         {
             super(v);
             mContext = context;
-            v.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    setFontSize(mOnNewsClickListener.onSetFontSize());
-                    startWebViewActivity(getNews());
-                }
 
-            });
-
+            mLevelBar = v.findViewById(R.id.level_bar);
+            mCardView = v.findViewById(R.id.card_view);
             mCategoryView = v.findViewById(R.id.card_category);
-            mTitleView = (TextView) v.findViewById(R.id.card_title);
-            mNewsImgView = (ImageView) v.findViewById(R.id.news_img);
+            mTitleView = v.findViewById(R.id.card_title);
+            mNewsImgView = v.findViewById(R.id.news_img);
             mSourceView = v.findViewById(R.id.card_source);
             mDateView = v.findViewById(R.id.card_date);
             mCardOverFlow = v.findViewById(R.id.card_overflow);
@@ -84,9 +133,48 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
 
             setRoundedImg();
 
+            mCardView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    setFontSize(mOnNewsClickListener.onSetFontSize());
+                    startWebViewActivity(getNews());
+                }
+            });
+
+
+            mCardOverFlow.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    showNewsBottomSheet(getNews());
+                }
+
+            });
+
         }
 
-         private void setRoundedImg()
+        private void showNewsBottomSheet(News news)
+        {
+
+            RcmdNewsBottomSheetDialogFragment rcmdNewsBottomSheetDialogFragment =
+                    RcmdNewsBottomSheetDialogFragment.newInstance();
+
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(News.TAG, news);
+
+            rcmdNewsBottomSheetDialogFragment.setArguments(bundle);
+
+
+            rcmdNewsBottomSheetDialogFragment.show(mFragmentManager,
+                    RcmdNewsBottomSheetDialogFragment.TAG);
+
+        }
+
+
+        private void setRoundedImg()
         {
             GradientDrawable drawable = (GradientDrawable) mContext.getDrawable(R.drawable.round_background);
             mNewsImgView.setBackground(drawable);
@@ -99,18 +187,17 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         {
             Intent intent = new Intent(mContext, WebViewActivity.class);
 
-            intent.putExtra(News.KEY_ID,news.getId());
-            intent.putExtra(News.KEY_URL,news.getUrl());
-            intent.putExtra(News.KEY_TITLE, news.getTitle());
-            intent.putExtra(News.KEY_IMG_URL, news.getImgUrl());
+            intent.putExtra(News.TAG, news);
+            intent.putExtra(News.KEY_URL_TYPE, WebViewActivity.TYPE_NEWS_URL);
+
             intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
+
+
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             mContext.startActivity(intent);
         }
 
-        //public TextView getTextView() { return mTextView; }
-        //public ImageView getImageView() { return mImageView; }
 
         public News getNews()
         {
@@ -123,21 +210,68 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         }
     }
 
-    @Override
-    public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    private class LoadingViewHolder extends RecyclerView.ViewHolder
     {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.rcmd_news_card,parent,false);
+        ProgressBar mProgressBar;
 
-        ListItemViewHolder listItemViewHolder = new ListItemViewHolder(v,mContext);
+        public LoadingViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+            mProgressBar = itemView.findViewById(R.id.progressBar);
 
-        return listItemViewHolder;
+        }
     }
 
     @Override
-    public void onBindViewHolder(ListItemViewHolder holder, int position)
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        News news = mData.get(position);
+        if(viewType == VIEW_TYPE_NEWS)
+        {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.rcmd_news_card,parent,false);
+
+            return new NewsViewHolder(view,mContext);
+
+        }
+        else if(viewType == VIEW_TYPE_LOADING)
+        {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_loading,
+                    parent,false);
+
+            return new LoadingViewHolder(view);
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position)
+    {
+
+        if(holder instanceof NewsViewHolder)
+        {
+            populateNewsRow((NewsViewHolder)holder,position);
+
+        }
+        else if(holder instanceof LoadingViewHolder)
+        {
+            showLoadingView((LoadingViewHolder)holder);
+
+        }
+
+    }
+
+    private void showLoadingView(LoadingViewHolder holder)
+    {
+        holder.mProgressBar.setIndeterminate(true);
+    }
+
+    private void populateNewsRow(NewsViewHolder holder, int position)
+    {
+        News news = mNewsList.get(position);
+
+        setLevelBar(news,holder);
 
         String category = news.getCategory();
         holder.mCategoryView.setText(category);
@@ -155,17 +289,6 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         String date = news.getDate();
         holder.mDateView.setText(date);
 
-        holder.mCardOverFlow.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                showPopupMenu();
-            }
-
-
-        });
-
         Drawable logo = news.getSourceLogo();
 
         setSourceLogo(logo,holder);
@@ -174,7 +297,45 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
 
     }
 
-    private void setSourceLogo(Drawable logo, ListItemViewHolder holder)
+    private void setLevelBar(News news, NewsViewHolder holder)
+    {
+        View bar = holder.mLevelBar;
+        String level = news.getSimilarityLevel();
+
+        if(level.equals("1"))
+        {
+            bar.setBackgroundTintList(ContextCompat.
+                    getColorStateList(mContext,R.color.sim_level_1));
+
+        }
+        else if(level.equals("2"))
+        {
+            bar.setBackgroundTintList(ContextCompat.
+                    getColorStateList(mContext,R.color.sim_level_2));
+
+        }
+        else if(level.equals("3"))
+        {
+            bar.setBackgroundTintList(ContextCompat.
+                    getColorStateList(mContext,R.color.sim_level_3));
+
+        }
+        else if(level.equals("4"))
+        {
+            bar.setBackgroundTintList(ContextCompat.
+                    getColorStateList(mContext,R.color.sim_level_4));
+
+        }
+        else if(level.equals("5"))
+        {
+            bar.setBackgroundTintList(ContextCompat.
+                    getColorStateList(mContext,R.color.sim_level_5));
+
+        }
+
+    }
+
+    private void setSourceLogo(Drawable logo, NewsViewHolder holder)
     {
         if(null != logo)
         {
@@ -190,15 +351,10 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
 
     }
 
-    private void showPopupMenu()
-    {
-
-    }
-
 
     private void setImageSrc(String url, int position, ImageView imageView, News news)
     {
-        Log.i(TAG,mData.get(position).getTitle()) ;
+        Log.i(TAG,mNewsList.get(position).getTitle()) ;
         Log.i(TAG,url);
 
         if(url.isEmpty())
@@ -211,10 +367,28 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
         }
     }
 
+    public void setOnLoadMoreListener(OnLoadMoreListener listener)
+    {
+        this.mOnLoadMoreListener = listener;
+    }
+
+    @Override
+    public int getItemViewType(int position)
+    {
+        return mNewsList.get(position) == null ? VIEW_TYPE_LOADING :
+                VIEW_TYPE_NEWS;
+    }
+
     @Override
     public int getItemCount()
     {
-        return mData.size();
+        return mNewsList == null ? 0 : mNewsList.size();
+    }
+
+    public void setLoaded()
+    {
+        mIsLoading = false;
+
     }
 
     public int getFontSize()
@@ -230,6 +404,11 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecommendListAdap
     public interface OnNewsClickListener
     {
         int onSetFontSize();
+    }
+
+    public interface OnLoadMoreListener
+    {
+        void onLoadMore();
     }
 
 

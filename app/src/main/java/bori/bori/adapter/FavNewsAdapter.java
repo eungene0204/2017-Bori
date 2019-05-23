@@ -1,51 +1,251 @@
 package bori.bori.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.RecyclerView;
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
+import bori.bori.fragment.FavNewsBottomSheetFragment;
+import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
-import bori.bori.realm.FavNews;
-import bori.bori.realm.RealmController;
+import bori.bori.news.NewsHelper;
+import bori.bori.news.FavNews;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
+import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
+import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
 
-/**
- * Created by Eugene on 2017-09-01.
- */
+import java.util.Map;
 
-
-public class FavNewsAdapter extends RealmRecyclerViewAdapter<FavNews>
+public class FavNewsAdapter extends RealmRecyclerViewAdapter
 {
     private final String TAG = "FavNewsAdapter";
-
-    private Context mContext;
-    private Realm mRealm;
-    private RecommendListAdapter.OnNewsClickListener mOnNewsClickListener;
-    private List<FavNews> mItemsPendingRemoval;
-
-    private static final int PENDING_REMOVAL_TIMEOUT = 3000;
-    private android.os.Handler mHandler = new android.os.Handler();
-    HashMap<String, Runnable> mPendingRunnables = new HashMap<>();
-
+    private FragmentManager mFragmentManager;
     private int mFontSize;
+    private Activity mContext;
+    private Realm mRealm;
+    private NewsHelper mNewsHelper;
+    private Drawable mSourceLogo = null;
 
-    public int getFontSize()
+    public FavNewsAdapter(@Nullable OrderedRealmCollection data, boolean autoUpdate)
+    {
+        super(data, autoUpdate);
+    }
+
+    public FavNewsAdapter(RealmResults<FavNews> list, Activity activity,FragmentManager fragmentManager)
+    {
+        super(list,true,true);
+
+        this.mContext = activity;
+
+        mRealm = Realm.getDefaultInstance();
+        mNewsHelper = new NewsHelper(mContext);
+        this.mFragmentManager = fragmentManager;
+
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    {
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.fav_news_card,parent,false);
+
+        ViewHolder viewHolder = new ViewHolder(v,mContext);
+
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position)
+    {
+        ViewHolder _holder = (ViewHolder) holder;
+        FavNews news = (FavNews) getItem(position);
+
+        String title = news.getTitle();
+        _holder.mTitleView.setText(title);
+
+        ImageView imageView = _holder.mNewsImgView;
+        String imgUrl = news.getImgUrl();
+
+        String source = news.getSource();
+        _holder.mSourceView.setText(source);
+
+        mSourceLogo = findSourceLogo(source);
+
+        setImageSrc(imgUrl,imageView,mNewsHelper.getSourceLogo());
+
+        setSourceLogo(source,_holder);
+
+        _holder.setNews(news);
+
+
+    }
+
+    private Drawable findSourceLogo(String source)
+    {
+
+        Map<String, Drawable> logoMap = mNewsHelper.getSourceLogo();
+        Drawable logo = null;
+
+
+        if(logoMap.containsKey(source))
+        {
+            logo = logoMap.get(source);
+        }
+
+        return logo;
+
+    }
+
+    private void setImageSrc(String url, ImageView imageView, Map<String,Drawable> logoMap)
+    {
+
+        if(url.isEmpty())
+        {
+            if(null != mSourceLogo)
+            {
+                imageView.setImageDrawable(mSourceLogo);
+            }
+            else
+            {
+                imageView.setVisibility(View.GONE);
+            }
+
+        }
+        else
+        {
+            UrlImageViewHelper.setUrlDrawable(imageView,url, null,6000);
+        }
+    }
+
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder
+    {
+        private Context mContext;
+
+        private FavNews mNews;
+
+        public TextView mTitleView;
+        public ImageView mNewsImgView;
+        public TextView mSourceView;
+        public ImageView mCardOverFlow;
+
+        public ImageView mSourceLogo;
+        public CardView mCardView;
+
+        public ViewHolder(View v, Context context)
+        {
+            super(v);
+            mContext = context;
+
+            mCardView = v.findViewById(R.id.card_view);
+
+            mTitleView =  v.findViewById(R.id.card_title);
+            mNewsImgView =  v.findViewById(R.id.news_img);
+            mSourceView = v.findViewById(R.id.card_source);
+            mCardOverFlow = v.findViewById(R.id.card_overflow);
+            mSourceLogo = v.findViewById(R.id.source_img);
+
+            setRoundedImg();
+
+            mCardView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                     //setFontSize(mOnNewsClickListener.onSetFontSize());
+                    startWebViewActivity(getNews());
+
+                }
+            });
+
+
+            mCardOverFlow.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    showNewsBottomSheet(getNews());
+                }
+            });
+
+        }
+
+        private void showNewsBottomSheet(FavNews news)
+        {
+
+            FavNewsBottomSheetFragment favNewsBottomSheetFragment=
+                    FavNewsBottomSheetFragment.newInstance();
+
+            Bundle bundle = new Bundle();
+            bundle.putString(FavNews.KEY_ID, news.getId());
+            bundle.putString(FavNews.KEY_URL, news.getUrl());
+            bundle.putString(FavNews.KEY_TITLE, news.getTitle());
+            bundle.putString(FavNews.KEY_CATEGORY, news.getCategory());
+
+            favNewsBottomSheetFragment.setArguments(bundle);
+
+            favNewsBottomSheetFragment.show(mFragmentManager,
+                    RcmdNewsBottomSheetDialogFragment.TAG);
+
+        }
+
+
+        private void setRoundedImg()
+        {
+            GradientDrawable drawable = (GradientDrawable) mContext.getDrawable(R.drawable.round_background);
+            mNewsImgView.setBackground(drawable);
+            mNewsImgView.setClipToOutline(true);
+
+        }
+
+
+        private void startWebViewActivity(FavNews favNews)
+        {
+            Intent intent = new Intent(mContext, WebViewActivity.class);
+
+            News news = new News();
+            news.setId(favNews.getId());
+            news.setUrl(favNews.getUrl());
+            news.setTitle(favNews.getTitle());
+
+            intent.putExtra(News.TAG, news);
+            intent.putExtra(News.KEY_URL_TYPE, WebViewActivity.TYPE_NEWS_URL);
+
+            intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            mContext.startActivity(intent);
+        }
+
+        public FavNews getNews()
+        {
+            return mNews;
+        }
+
+        public void setNews(FavNews news)
+        {
+            mNews = news;
+        }
+    }
+
+     public int getFontSize()
     {
         return mFontSize;
     }
@@ -55,286 +255,28 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter<FavNews>
         mFontSize = fontSize;
     }
 
-    public FavNewsAdapter(Context context)
+    public interface OnNewsClickListener
     {
-        this.mContext = context;
-        mItemsPendingRemoval = new ArrayList<>();
-
+        int onSetFontSize();
     }
 
-
-    public void setNewsClickListener(RecommendListAdapter.OnNewsClickListener listener)
+     private void setSourceLogo(String source, ViewHolder holder)
     {
-        mOnNewsClickListener = listener;
-    }
 
-
-    @Override
-    public FavNewsViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
-    {
-        View view = LayoutInflater.from(parent.getContext()).
-                inflate(R.layout.fav_row_item,parent,false);
-
-        return new FavNewsViewHolder(view,mContext);
-
-    }
-
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position)
-    {
-        FavNewsViewHolder viewHolder = (FavNewsViewHolder) holder;
-        mRealm = RealmController.getInstance().getRealm();
-
-        final FavNews favNews = getItem(position);
-        viewHolder.setFavNews(favNews);
-
-        viewHolder.getTextView().setText(favNews.getTitle());
-        ImageView imageView = viewHolder.getImageView();
-        String imgUrl = favNews.getImgUrl();
-        setImageSrc(imgUrl, position, imageView);
-
-        View v = viewHolder.getView();
-
-        v.setOnLongClickListener(new View.OnLongClickListener()
+        if(null != mSourceLogo)
         {
-            @Override
-            public boolean onLongClick(View v)
-            {
-
-                RealmResults<FavNews> results = mRealm.where(FavNews.class)
-                        .findAll();
-
-                // All changes to data must happen in a transaction
-                mRealm.beginTransaction();
-
-                // remove single match
-                results.remove(position);
-                mRealm.commitTransaction();
-                notifyDataSetChanged();
-
-                return false;
-            }
-        });
-
-        if(mItemsPendingRemoval.contains(favNews))
-        {
-            viewHolder.mRegularLayout.setVisibility(View.GONE);
-            viewHolder.mSwipeLayout.setVisibility(View.VISIBLE);
-            viewHolder.mUndo.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                   undoOpt(favNews);
-                }
-            });
+            holder.mSourceLogo.setImageDrawable(mSourceLogo);
+            holder.mSourceView.setVisibility(View.INVISIBLE);
+            holder.mSourceLogo.setVisibility(View.VISIBLE);
         }
         else
         {
-            viewHolder.mRegularLayout.setVisibility(View.VISIBLE);
-            viewHolder.mSwipeLayout.setVisibility(View.GONE);
-            viewHolder.getTextView().setText(favNews.getTitle());
+            holder.mSourceLogo.setVisibility(View.INVISIBLE);
+            holder.mSourceView.setVisibility(View.VISIBLE);
         }
-
 
     }
 
-    private RealmResults<FavNews> getRealmResults()
-    {
-
-        RealmResults<FavNews> results = mRealm.where(FavNews.class)
-                .findAll();
-
-        return results;
-    }
-
-    private void undoOpt(FavNews favNews)
-    {
-        Runnable pendingRemovalRunnable = mPendingRunnables.get(favNews.getId());
-        mPendingRunnables.remove(favNews.getId());
-
-        if(pendingRemovalRunnable != null)
-        {
-            mHandler.removeCallbacks(pendingRemovalRunnable);
-        }
-        mItemsPendingRemoval.remove(favNews);
-        RealmResults<FavNews> results = getRealmResults();
-        notifyItemChanged(getIndex(results,favNews));
-    }
-
-    private int getIndex(RealmResults<FavNews> results, FavNews favNews)
-    {
-        for(int i=0; i < results.size(); i++)
-        {
-            if(results.get(i).equals(favNews))
-            {
-                return i;
-            }
-        }
-        return 0;
-    }
-
-    private void setImageSrc(String url, int position, ImageView imageView)
-    {
-        Log.i(TAG,url);
-        UrlImageViewHelper.setUrlDrawable(imageView,url, R.drawable.tw__ic_logo_default,6000);
-
-    }
-
-    @Override
-    public int getItemCount()
-    {
-        if(getRealmAdapter() != null)
-        {
-            return getRealmAdapter().getCount();
-        }
-        return 0;
-    }
-
-   public void pendingRemoval(final int position)
-   {
-       final FavNews favNews = getItem(position);
-       if(!mItemsPendingRemoval.contains(favNews))
-       {
-           mItemsPendingRemoval.add(favNews);
-           // this will redraw row in "undo" state
-           notifyItemChanged(position);
-           //let's create, store and post a runnable to remove the data
-           Runnable pendingRemovalRunnable = new Runnable()
-           {
-               @Override
-               public void run()
-               {
-                   remove(position);
-               }
-           };
-
-           mHandler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
-           mPendingRunnables.put(favNews.getId(),pendingRemovalRunnable);
-
-       }
-
-   }
-
-   public void remove(int position)
-   {
-       FavNews favNews = getItem(position);
-       RealmResults<FavNews> results = getRealmResults();
-
-       if(mItemsPendingRemoval.contains(favNews))
-       {
-           mItemsPendingRemoval.remove(favNews);
-       }
-
-       if(results.contains(favNews))
-       {
-           removeRealm(position,results);
-       }
-
-   }
-
-   private void removeRealm(int position,RealmResults<FavNews> results)
-   {
-       // All changes to data must happen in a transaction
-       mRealm.beginTransaction();
-
-       // remove single match
-       results.remove(position);
-       mRealm.commitTransaction();
-       notifyDataSetChanged();
-
-   }
-
-   public boolean isPendingRemoval(int position)
-   {
-       FavNews favNews = getItem(position);
-       return mItemsPendingRemoval.contains(favNews);
-
-   }
 
 
-    public class FavNewsViewHolder extends RecyclerView.ViewHolder
-    {
-        private final String TAG = "FavNewsViewHolder";
-        private final TextView mTextView;
-        private final ImageView mImageView;
-        private View mView = null;
-        private FavNews mFavNews;
-
-        private LinearLayout mRegularLayout;
-        private LinearLayout mSwipeLayout;
-        private TextView mUndo;
-
-        public FavNewsViewHolder(View v, Context context)
-        {
-            super(v);
-            mView = v;
-
-            mTextView = (TextView) v.findViewById(R.id.row_textview);
-            mImageView = (ImageView) v.findViewById(R.id.row_imageview);
-
-            mRegularLayout = (LinearLayout) v.findViewById(R.id.regularItem);
-            mSwipeLayout = (LinearLayout) v.findViewById(R.id.swipeItem);
-            mUndo = (TextView) v.findViewById(R.id.undo);
-
-            mRegularLayout.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                     setFontSize(mOnNewsClickListener.onSetFontSize());
-                        startWebViewActivity();
-
-                }
-            });
-
-
-        }
-
-        private void startWebViewActivity()
-        {
-            Intent intent = new Intent(mContext, WebViewActivity.class);
-
-            intent.putExtra(News.KEY_ID,mFavNews.getId());
-            intent.putExtra(News.KEY_URL,mFavNews.getUrl());
-            intent.putExtra(News.KEY_TITLE, mFavNews.getTitle());
-            intent.putExtra(News.KEY_IMG_URL, mFavNews.getImgUrl());
-            intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
-
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            mContext.startActivity(intent);
-        }
-
-        public View getView()
-        {
-            return mView;
-        }
-
-        public void setView(View view)
-        {
-            mView = view;
-        }
-
-        public FavNews getFavNews()
-        {
-            return mFavNews;
-        }
-
-        public void setFavNews(FavNews favNews)
-        {
-            mFavNews = favNews;
-        }
-
-        public TextView getTextView()
-        {
-            return mTextView;
-        }
-
-        public ImageView getImageView()
-        {
-            return mImageView;
-        }
-    } //end of viewholder
 }
-

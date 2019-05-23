@@ -1,7 +1,9 @@
 package bori.bori.fragment;
 
 import android.os.Bundle;
+import android.widget.TextView;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,12 +17,11 @@ import android.view.ViewGroup;
 
 import bori.bori.R;
 import bori.bori.adapter.FavNewsAdapter;
-import bori.bori.adapter.RealmFavNewsAdapter;
-import bori.bori.adapter.RecommendListAdapter;
-import bori.bori.realm.FavNews;
-import bori.bori.realm.RealmController;
+import bori.bori.news.FavNews;
+import bori.bori.realm.RealmHelper;
 import bori.bori.utility.FontUtils;
 import bori.bori.utility.SwipeUtil;
+import com.google.android.material.appbar.AppBarLayout;
 import io.realm.RealmResults;
 
 /**
@@ -29,12 +30,14 @@ import io.realm.RealmResults;
 
 public class FavNewsFragment extends Fragment
 {
-    private static String TAG = FavNewsFragment.class.getSimpleName();
+    public static String TAG = FavNewsFragment.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
-    private FavNewsAdapter mAdapter;
+    private RealmHelper mRealmHelper;
+
 
     private int mFontSize;
+    private FavNewsAdapter mAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
@@ -49,9 +52,9 @@ public class FavNewsFragment extends Fragment
     {
         View rootView = inflater.inflate(R.layout.fragment_fav_news, container, false);
 
+        mRealmHelper = new RealmHelper(getContext());
+
         setupRecycler(rootView);
-        setRealmAdapter(RealmController.with(getActivity()).getFavNewsAll());
-        setSwipeForRecyclerVIew();
 
         Bundle bundle = getArguments();
         if(bundle != null)
@@ -71,8 +74,8 @@ public class FavNewsFragment extends Fragment
     private void setupRecycler(View rootView)
     {
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.fav_news_recycler);
-        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView = rootView.findViewById(R.id.fav_news_recycler);
+        //mRecyclerView.setHasFixedSize(true);
 
         LinearLayoutManager layoutManager = new
                 LinearLayoutManager(getActivity().getApplication());
@@ -80,9 +83,10 @@ public class FavNewsFragment extends Fragment
         layoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new FavNewsAdapter(getActivity());
+        RealmResults<FavNews> results = getRealmResult();
+        mAdapter = new FavNewsAdapter(results,getActivity(),getFragmentManager());
         mAdapter.setFontSize(mFontSize);
-        mAdapter.setNewsClickListener((RecommendListAdapter.OnNewsClickListener) getActivity());
+        //mAdapter.setNewsClickListener((RecommendListAdapter.OnNewsClickListener) getActivity());
         mRecyclerView.setAdapter(mAdapter);
 
         DividerItemDecoration dividerItemDecoration = new
@@ -92,19 +96,26 @@ public class FavNewsFragment extends Fragment
         dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getActivity(),
                 R.drawable.divider));
 
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
+        //mRecyclerView.addItemDecoration(dividerItemDecoration);
 
 
     }
 
+    private RealmResults<FavNews> getRealmResult()
+    {
+
+        return mRealmHelper.getAllSavedNews();
+    }
+
     private void setRealmAdapter(RealmResults<FavNews> favNews)
     {
+        /*
         RealmFavNewsAdapter realmAdapter = new
                 RealmFavNewsAdapter(this.getActivity().getApplicationContext(),
                 favNews,true);
 
         mAdapter.setRealmBaseAdapter(realmAdapter);
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged(); */
 
     }
 
@@ -116,20 +127,22 @@ public class FavNewsFragment extends Fragment
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction)
             {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                FavNewsAdapter adapter = (FavNewsAdapter) mRecyclerView.getAdapter();
-                adapter.pendingRemoval(swipedPosition);
+                //FavNewsAdapter adapter = (FavNewsAdapter) mRecyclerView.getAdapter();
+                //adapter.pendingRemoval(swipedPosition);
             }
 
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
             {
                 int position = viewHolder.getAdapterPosition();
+
+                /*
                 FavNewsAdapter adapter = (FavNewsAdapter) mRecyclerView.getAdapter();
 
                 if(adapter.isPendingRemoval(position))
                 {
                     return 0;
-                }
+                } */
 
                 return super.getSwipeDirs(recyclerView, viewHolder);
             }
@@ -151,5 +164,20 @@ public class FavNewsFragment extends Fragment
         AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         appCompatActivity.getSupportActionBar().setTitle(R.string.nav_fav);
 
+        setAppBar();
+
     }
+
+    private void setAppBar()
+    {
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+
+        TextView titleView = toolbar.findViewById(R.id.toolbar_main_tile);
+        titleView.setText(getString(R.string.nav_fav));
+
+        AppBarLayout layout = (AppBarLayout) toolbar.getParent();
+        layout.setExpanded(true,true);
+
+    }
+
 }

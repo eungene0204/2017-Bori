@@ -12,6 +12,9 @@
     <string name="nav_logout">로그아웃</string>
     <string name="nav_stat">통계</string>
 
+    <string name="news_topic">뉴스토픽</string>
+    <string name="news_saved">저장된 뉴스</string>
+
 
     <string name="dlg_head_news">주요뉴스를 검색 중 입니다.</string>
 
@@ -30,6 +33,23 @@
     <string name="app_share">앱 공유하기</string>
     <string name="setting">설정</string>
 
+    <string name="news_share">공유하기</string>
+    <string name="news_bookmark">저장하기 </string>
+    <string name="news_source">브라우저로 보기</string>
+    <string name="news_biz">언론사로 이동</string>
+    <string name="news_remove">삭제하기</string>
+    <string name="original_sns">SNS 원본보기</string>
+
+    <string name="toast_bookmark_success">저장 되었습니다.</string>
+    <string name="toast_bookmark_already">이미 저장 되었습니다.</string>
+   
+    <string name="sort_standard">정렬 기준</string>
+    <string name="sort_sim">관련도 정렬</string>
+    <string name="sort_sns">관련SNS 정렬</string>
+
+    <string name="tab_today">오늘</string>
+    <string name="tab_week">지난 7일</string>
+
     <string name="bori_alg">BORI ALGORITHM</string>
 
     <string name="chosun_ilbo">조선일보</string>
@@ -41,6 +61,8 @@
     <string name="e_daily">이데일리</string>
     <string name="joong_ang">중앙일보</string>
     <string name="huff_post">허핑턴포스트</string>
+
+    <string name="no_data">저장된 뉴스가 없습니다.</string>
 
 
     <string name="navigation_drawer_open">Open navigation drawer</string>

@@ -3,6 +3,9 @@ package bori.bori.fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -29,10 +32,13 @@ import bori.bori.volley.VolleyHelper;
 import bori.bori.volley.VolleySingleton;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.material.appbar.AppBarLayout;
 import org.json.JSONObject;
 
 
-public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyHelperHeadNewsListener, SwipeRefreshLayout.OnRefreshListener
+public class HeadNewsFragment extends Fragment implements
+        VolleyHelper.OnVolleyHelperHeadNewsListener, SwipeRefreshLayout.OnRefreshListener
+
 {
     public static String TAG = HeadNewsFragment.class.getSimpleName();
 
@@ -90,9 +96,11 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
     {
         View rootView = inflater.inflate(R.layout.fragment_head_news, container, false);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.head_news_swiperefresh);
+        mSwipeRefreshLayout =  rootView.findViewById(R.id.head_news_swiperefresh);
         mSwipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getActivity(), R.color.colorAccent));
+
+        setToolbar();
 
         mVolleyHelper.setSwipeRefreshLayout(mSwipeRefreshLayout);
 
@@ -112,14 +120,21 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
         return rootView;
     }
 
+    private void setToolbar()
+    {
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        ImageView sortImg = toolbar.findViewById(R.id.sort_img);
+        sortImg.setVisibility(View.GONE);
+    }
+
     private void setRecyclerView(View rootView)
     {
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        mRecyclerView = rootView.findViewById(R.id.list);
         RecyclerView.LayoutManager layoutManager = new
                 LinearLayoutManager(getActivity().getApplication());
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new HeadNewsAdapter(getActivity().getApplicationContext(),mDataset);
+        mAdapter = new HeadNewsAdapter(getActivity().getApplicationContext(),mDataset,getFragmentManager());
         mAdapter.setFontSize(mFontSize);
         mAdapter.setNewsClickListener((HeadNewsAdapter.OnHeadNewsClickListener) getActivity());
         mRecyclerView.setAdapter(mAdapter);
@@ -160,10 +175,22 @@ public class HeadNewsFragment extends Fragment implements VolleyHelper.OnVolleyH
     public void onResume()
     {
         super.onResume();
-        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        appCompatActivity.getSupportActionBar().setTitle(R.string.nav_head_news);
+
+        setAppBar();
+    }
+
+    private void setAppBar()
+    {
+        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
+
+        TextView titleView = toolbar.findViewById(R.id.toolbar_main_tile);
+        titleView.setText(getString(R.string.nav_head_news));
+
+        AppBarLayout layout = (AppBarLayout) toolbar.getParent();
+        layout.setExpanded(true,true);
 
     }
+
 
     private void readNews()
     {

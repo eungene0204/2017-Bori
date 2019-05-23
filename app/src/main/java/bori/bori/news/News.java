@@ -1,13 +1,18 @@
 package bori.bori.news;
 
 import android.graphics.drawable.Drawable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by Eugene on 2017-08-10.
  */
 
-public class News
+public class News implements Parcelable
 {
+    public static String TAG = "News";
+
+    public static String KEY_URL_TYPE = "url_type";
     public static String KEY_NEWS_TYPE = "news_type";
     public static String KEY_HEAD_LINE_NEWS = "head_line_news";
     public static String KEY_RECOMMEND_NEWS = "recommend_news";
@@ -24,9 +29,59 @@ public class News
     private String mImgSrc;
     private String mId;
     private String mSource;
+    private String mSourceUrl;
     private String mDate;
     private String mCategory;
+    private String mOriginal;
+
+
+    private String mSimilarityLevel;
     private Drawable mSourceLogo;
+
+    public News()
+    {
+
+    }
+
+    protected News(Parcel in)
+    {
+        mNewsType = in.readString();
+        mTitle = in.readString();
+        mLink = in.readString();
+        mImgSrc = in.readString();
+        mId = in.readString();
+        mSource = in.readString();
+        mSourceUrl = in.readString();
+        mDate = in.readString();
+        mCategory = in.readString();
+        mSimilarityLevel = in.readString();
+    }
+
+    public static final Creator<News> CREATOR = new Creator<News>()
+    {
+        @Override
+        public News createFromParcel(Parcel in)
+        {
+            return new News(in);
+        }
+
+        @Override
+        public News[] newArray(int size)
+        {
+            return new News[size];
+        }
+    };
+
+    public String getSimilarityLevel()
+    {
+        return mSimilarityLevel;
+    }
+
+    public void setSimilarityLevel(String similarityLevel)
+    {
+        mSimilarityLevel = similarityLevel;
+    }
+
 
     public void setSourceLogo(Drawable logo)
     {
@@ -69,8 +124,24 @@ public class News
     }
 
 
+    public String getOriginal()
+    {
+        return mOriginal;
+    }
+    public void setOriginal(String original)
+    {
+        mOriginal = original;
+    }
 
+    public String getSourceUrl()
+    {
+        return mSourceUrl;
+    }
 
+    public void setSourceUrl(String sourceUrl)
+    {
+        mSourceUrl = sourceUrl;
+    }
 
     public String getId()
     {
@@ -121,5 +192,26 @@ public class News
     public void setNewsType(String mNewsType)
     {
         this.mNewsType = mNewsType;
+    }
+
+    @Override
+    public int describeContents()
+    {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags)
+    {
+        dest.writeString(mNewsType);
+        dest.writeString(mTitle);
+        dest.writeString(mLink);
+        dest.writeString(mImgSrc);
+        dest.writeString(mId);
+        dest.writeString(mSource);
+        dest.writeString(mSourceUrl);
+        dest.writeString(mDate);
+        dest.writeString(mCategory);
+        dest.writeString(mSimilarityLevel);
     }
 }

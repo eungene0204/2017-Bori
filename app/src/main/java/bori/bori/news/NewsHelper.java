@@ -1,7 +1,10 @@
 package bori.bori.news;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
+import android.util.Log;
 import androidx.core.content.ContextCompat;
 import bori.bori.R;
 import org.json.JSONArray;
@@ -13,13 +16,16 @@ import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NewsHelper
 {
+    public static final String TAG = "NewsHelper";
+
     private Activity mActivity;
-    private HashMap<String, Drawable> mSourceLogo;
+    private Map<String, Drawable> mSourceLogo;
 
     public NewsHelper(Activity activity)
     {
@@ -30,8 +36,15 @@ public class NewsHelper
 
     }
 
+    public Map<String,Drawable> getSourceLogo()
+    {
+        return mSourceLogo;
+    }
+
     private void setSourceLogo()
     {
+        mSourceLogo.put("default",ContextCompat.getDrawable(mActivity,R.drawable.ic_rss_grey));
+
         mSourceLogo.put("아시아경제", ContextCompat.getDrawable(mActivity, R.drawable.asia_econ));
         mSourceLogo.put("부산일보", ContextCompat.getDrawable(mActivity, R.drawable.busan));
         mSourceLogo.put("조선비즈", ContextCompat.getDrawable(mActivity, R.drawable.chosun_biz));
@@ -58,7 +71,6 @@ public class NewsHelper
         mSourceLogo.put("세계일보", ContextCompat.getDrawable(mActivity, R.drawable.sege));
         mSourceLogo.put("YTN", ContextCompat.getDrawable(mActivity, R.drawable.ytn));
         mSourceLogo.put("뉴시스", ContextCompat.getDrawable(mActivity, R.drawable.new_sis));
-        mSourceLogo.put("인사이트", ContextCompat.getDrawable(mActivity, R.drawable.insight));
         mSourceLogo.put("오마이뉴스", ContextCompat.getDrawable(mActivity, R.drawable.oh_my));
         mSourceLogo.put("KBS뉴스", ContextCompat.getDrawable(mActivity, R.drawable.kbs_news));
         mSourceLogo.put("광주in", ContextCompat.getDrawable(mActivity, R.drawable.kwangju_in));
@@ -66,8 +78,6 @@ public class NewsHelper
         mSourceLogo.put("프레시안", ContextCompat.getDrawable(mActivity, R.drawable.pressian));
         mSourceLogo.put("월간조선", ContextCompat.getDrawable(mActivity, R.drawable.chosun_month));
         mSourceLogo.put("한국농어민신문", ContextCompat.getDrawable(mActivity, R.drawable.hankook_nong_min));
-        mSourceLogo.put("SBS 뉴스", ContextCompat.getDrawable(mActivity, R.drawable.sbs_news));
-        mSourceLogo.put("SBS뉴스", ContextCompat.getDrawable(mActivity, R.drawable.sbs_news));
         mSourceLogo.put("뉴스1", ContextCompat.getDrawable(mActivity, R.drawable.news1));
         mSourceLogo.put("SBS연예뉴스", ContextCompat.getDrawable(mActivity, R.drawable.sbs_entertain));
         mSourceLogo.put("더팩트 뉴스", ContextCompat.getDrawable(mActivity, R.drawable.the_fact));
@@ -131,12 +141,9 @@ public class NewsHelper
         mSourceLogo.put("뉴데일리경제", ContextCompat.getDrawable(mActivity, R.drawable.new_daily_econ));
         mSourceLogo.put("스포츠조선", ContextCompat.getDrawable(mActivity, R.drawable.chosun_sports));
         mSourceLogo.put("IT조선", ContextCompat.getDrawable(mActivity, R.drawable.chosun_it));
-        mSourceLogo.put("BBC News 코리아", ContextCompat.getDrawable(mActivity, R.drawable.bbc_korea));
         mSourceLogo.put("한국어 방송(VOA)", ContextCompat.getDrawable(mActivity, R.drawable.voa));
         mSourceLogo.put("한국어 방송 (VOA)", ContextCompat.getDrawable(mActivity, R.drawable.voa));
-
         mSourceLogo.put("VOA Korea", ContextCompat.getDrawable(mActivity, R.drawable.voa));
-
         mSourceLogo.put("HYPEBEAST", ContextCompat.getDrawable(mActivity, R.drawable.hypebeast));
         mSourceLogo.put("아시아투데이", ContextCompat.getDrawable(mActivity, R.drawable.asia_today));
         mSourceLogo.put("데일리시큐", ContextCompat.getDrawable(mActivity, R.drawable.daily_seeq));
@@ -198,7 +205,14 @@ public class NewsHelper
         mSourceLogo.put("제주의소리", ContextCompat.getDrawable(mActivity, R.drawable.jejoo_sori));
         mSourceLogo.put("케이벤치", ContextCompat.getDrawable(mActivity, R.drawable.k_bench));
         mSourceLogo.put("헬스조선", ContextCompat.getDrawable(mActivity, R.drawable.chosun_health));
-
+        mSourceLogo.put("한겨례21", ContextCompat.getDrawable(mActivity, R.drawable.han21));
+        mSourceLogo.put("연합뉴스", ContextCompat.getDrawable(mActivity, R.drawable.yeonhap));
+        mSourceLogo.put("시사IN", ContextCompat.getDrawable(mActivity, R.drawable.sisain));
+        mSourceLogo.put("더기어", ContextCompat.getDrawable(mActivity, R.drawable.thegear));
+        mSourceLogo.put("뉴스엔", ContextCompat.getDrawable(mActivity, R.drawable.newsn));
+        mSourceLogo.put("영남일보", ContextCompat.getDrawable(mActivity, R.drawable.yeongnamilbo));
+        mSourceLogo.put("금강일보", ContextCompat.getDrawable(mActivity, R.drawable.kumkangilbo));
+        mSourceLogo.put("참여일보", ContextCompat.getDrawable(mActivity, R.drawable.chamyeo));
 
     }
 
@@ -216,8 +230,11 @@ public class NewsHelper
             String link = "";
             String imgSrc = "";
             String source = "";
+            String sourceUrl = "";
             String date = "";
             String category = "";
+            String original = "";
+            String simLelvel = "";
 
             JSONObject jsonObject  = null;
             try
@@ -225,16 +242,22 @@ public class NewsHelper
                 jsonObject = jsonArray.getJSONObject(i);
 
                 id = jsonObject.getString("id");
-
                 title = getTitle(jsonObject.getString("title"));
                 //title = jsonObject.getString("title");
+
+                if(newsType.equals(News.KEY_RECOMMEND_NEWS))
+                {
+                    original = jsonObject.getString("original");
+                }
 
                 link = jsonObject.getString("link");
                 //imgSrc = jsonObject.getString("img src");
                 imgSrc = getImgSrc(jsonObject);
                 source = getSource(jsonObject.getString("source"));
-                date = getDate(jsonObject.getString("published_parsed"));
+                sourceUrl = getSourceUrl(jsonObject.getString("source"));
+                date = getDate(jsonObject.getString("published"));
                 category = jsonObject.getString(News.KEY_CATEGORY);
+                simLelvel = jsonObject.getString("sim_level");
 
             }
             catch (JSONException e)
@@ -251,8 +274,11 @@ public class NewsHelper
                 news.setImgUrl(imgSrc);
                 news.setDate(date);
                 news.setSource(source);
+                news.setSourceUrl(sourceUrl);
                 news.setCategory(category);
                 news.setSourceLogo(getSourceLogo(source));
+                news.setSimilarityLevel(simLelvel);
+                news.setOriginal(original);
 
                 newsArrayList.add(news);
             }
@@ -271,8 +297,32 @@ public class NewsHelper
 
     private String getDate(String publichsed_parsed)
     {
-        String date = "";
+        String published = publichsed_parsed;
+        String totalDate = "";
 
+        try
+        {
+            String[] dateArray = published.split(",");
+            String day = dateArray[0];
+            String restDate = dateArray[1];
+
+            String[] restArray =  restDate.split(" ");
+            String date = restArray[1];
+            String month = restArray[2];
+            String year = restArray[3];
+
+            String _month = parseMonth(month);
+
+            totalDate = year + "년" + _month + "월" + date + "일"; //+ hour + "시" + min + "분";
+
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            Log.e(TAG, String.valueOf(e));
+
+        }
+
+        /*
         Pattern p = Pattern.compile("\\[(.*?)\\]");
         Matcher m = p.matcher(publichsed_parsed);
 
@@ -293,14 +343,36 @@ public class NewsHelper
             String min = dateArr[4];
 
             totalDate = year + "년" + month + "월" + day + "일"; //+ hour + "시" + min + "분";
+
         }
         catch (IndexOutOfBoundsException e)
         {
             e.getStackTrace();
         }
 
+        return totalDate; */
+
         return totalDate;
 
+    }
+
+    private String parseMonth(String month)
+    {
+        String result = "";
+        String[] months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct",
+        "Nov","Dec"};
+
+        for(int i=0; i < months.length; i++)
+        {
+            if(months[i].equals(month))
+            {
+                int intMonth = i+1;
+                result = String.valueOf(intMonth);
+            }
+
+        }
+
+        return result;
     }
 
     private String getSource(String source) throws JSONException
@@ -311,6 +383,15 @@ public class NewsHelper
 
         return src;
 
+    }
+
+    private String getSourceUrl(String source) throws JSONException
+    {
+        JSONObject jsonObject = new JSONObject(source);
+
+        String url = jsonObject.getString("href");
+
+        return url;
     }
 
     private String getTitle(String title)
@@ -384,5 +465,13 @@ public class NewsHelper
         return img_src;
 
     }
+
+    public interface OnSortListener
+    {
+        void onSort(String sortType);
+    }
+
+
+
 
 }

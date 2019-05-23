@@ -35,6 +35,7 @@ public class UserBottomSheetDialogFragment extends BottomSheetDialogFragment
     {
         super.onCreate(savedInstanceState);
         setStyle(BottomSheetDialogFragment.STYLE_NO_TITLE, R.style.BottomSheetDialogTheme);
+
     }
 
     public static UserBottomSheetDialogFragment newInstance()

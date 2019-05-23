@@ -21,7 +21,7 @@
 
      <item
             android:id="@+id/btm_nav_fav"
-            android:icon="@drawable/ic_fav_grey"
+            android:icon="@drawable/ic_biz_collection_grey"
             android:title="@string/nav_fav"/>
      <item
             android:id="@+id/btm_nav_stat"

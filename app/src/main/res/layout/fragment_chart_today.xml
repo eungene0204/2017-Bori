@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/colorPrimary"
+        android:fillViewport="true"
+>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/colorPrimary"
+    >
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="25dp"
+        >
+
+            <RelativeLayout
+                    android:id="@+id/topic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+            >
+                <TextView
+                        android:id="@+id/news_topic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="@string/news_topic"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerHorizontal="true"
+                />
+
+            </RelativeLayout>
+
+            <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/chart_news"
+                    android:layout_below="@id/topic"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@color/white"
+            />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+        >
+
+
+            <RelativeLayout
+                    android:id="@+id/save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+            >
+                <TextView
+                        android:id="@+id/news_saved"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="@string/news_saved"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerHorizontal="true"
+                />
+
+            </RelativeLayout>
+
+
+            <com.github.mikephil.charting.charts.HorizontalBarChart
+                    android:id="@+id/chart_save"
+                    android:layout_below="@id/save"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="300dp"
+                    android:background="@color/white"
+            />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

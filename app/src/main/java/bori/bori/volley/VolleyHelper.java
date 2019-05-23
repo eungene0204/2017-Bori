@@ -34,11 +34,11 @@ public class VolleyHelper
 {
     static final private String TAG = "VolleyHelper";
 
-    static final private String LOCAL = "http://121.167.131.96:8000/bori";
+    static final private String LOCAL = "http://125.143.191.213:8000/bori";
     static final public String HEAD_NEWS_URL = LOCAL + "/head";
     static final public String RCMD_NEWS_URL = LOCAL + "/rcmd";
 
-    final int SOKET_TIME = 60000;
+    final int SOCKET_TIME = 60000;
 
     /*
      static final private String url = "http://ec2-13-125-11-197.ap-northeast-2.compute.amazonaws.com" +
@@ -126,7 +126,7 @@ public class VolleyHelper
                     }
                 });
 
-        int socketTimeout = SOKET_TIME;
+        int socketTimeout = SOCKET_TIME;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);
@@ -169,7 +169,7 @@ public class VolleyHelper
                     }
                 });
 
-        int socketTimeout = SOKET_TIME;
+        int socketTimeout = SOCKET_TIME;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsonObjectRequest.setRetryPolicy(policy);

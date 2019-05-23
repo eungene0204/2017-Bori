@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
+import bori.bori.fragment.HeadNewsBottomSheetFragment;
 import bori.bori.news.News;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
@@ -26,13 +29,15 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
     private Context mContext;
     private List<News> mData = Collections.emptyList();
     private int mFontSize = 0;
+    private final FragmentManager mFragmentManager;
 
     private OnHeadNewsClickListener mOnNewsClickListener;
 
-    public HeadNewsAdapter(Context mContext, List<News> data)
+    public HeadNewsAdapter(Context mContext, List<News> data, FragmentManager fragmentManager)
     {
         this.mContext = mContext;
         this.mData = data;
+        this.mFragmentManager = fragmentManager;
     }
 
     public void setNewsClickListener(OnHeadNewsClickListener listener)
@@ -156,6 +161,16 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
             mNewsImg = itemView.findViewById(R.id.news_img);
             mDateText = itemView.findViewById(R.id.date);
             mOverflowImg = itemView.findViewById(R.id.overflow_img);
+            
+            mOverflowImg.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    showBottomSheet(getNews());
+                    
+                }
+            });
 
             setRoundedImg();
 
@@ -173,10 +188,9 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
         {
             Intent intent = new Intent(mContext, WebViewActivity.class);
 
-            intent.putExtra(News.KEY_ID,news.getId());
-            intent.putExtra(News.KEY_URL,news.getUrl());
-            intent.putExtra(News.KEY_TITLE, news.getTitle());
-            intent.putExtra(News.KEY_IMG_URL, news.getImgUrl());
+            intent.putExtra(News.TAG, news);
+            intent.putExtra(News.KEY_URL_TYPE, WebViewActivity.TYPE_NEWS_URL);
+
             intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -196,6 +210,21 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
             mNews = news;
         }
 
+    }
+
+    private void showBottomSheet(News news)
+    {
+         HeadNewsBottomSheetFragment headNewsBottomSheetFragment=
+                    HeadNewsBottomSheetFragment.newInstance();
+
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(News.TAG,news );
+
+            headNewsBottomSheetFragment.setArguments(bundle);
+
+
+            headNewsBottomSheetFragment.show(mFragmentManager,
+                    HeadNewsBottomSheetFragment.TAG);
     }
 
     public int getFontSize()

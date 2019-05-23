@@ -45,9 +45,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="C:\Users\Eugene\Desktop\baseline-more_vert-android-black\res\drawable\baseline_more_vert_24.xml" />
-                                      <entry key="outputName" value="ic_overflow" />
-                                      <entry key="themeColor" value="9e9e9e" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Downloads/icons/done/drawable/baseline_done_24.xml" />
+                                      <entry key="outputName" value="ic_done_grey" />
+                                      <entry key="theme" value="CUSTOM" />
+                                      <entry key="themeColor" value="757575" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -74,7 +75,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundLayerName" value="ic_launcher_background" />
-                                      <entry key="foregroundImage" value="C:\Users\Eugene\Desktop\baseline-account_box-android-black\res\drawable\baseline_account_box_24.xml" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Downloads/icons/share/drawable/baseline_share_24.xml" />
                                       <entry key="outputName" value="ic_account" />
                                     </map>
                                   </option>

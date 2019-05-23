@@ -4,14 +4,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import androidx.core.view.MenuItemCompat;
+import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,56 +21,60 @@ import android.widget.ProgressBar;
 
 import bori.bori.R;
 import bori.bori.news.News;
-import bori.bori.realm.FavNews;
-import bori.bori.realm.RealmController;
+import bori.bori.realm.RealmHelper;
+import bori.bori.utility.MenuUtils;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 public class WebViewActivity extends AppCompatActivity
 {
 
     private final String TAG = "WebViewActivity";
 
+    public static final String TYPE_NEWS_URL = "NEWS_URL";
+    public static final String TYPE_SOURCE_URL = "SOURCE_RUL";
+
     private WebView mWebView;
     private ProgressDialog mProgressDialog;
     private ProgressBar mProgressBar;
     private ShareActionProvider mShareActionProvider;
 
-    private String mId;
-    private String mNewsLinkUrl;
-    private String mNewsTitle;
-    private String mImgUrl;
     private int mFontSize;
 
     private Realm mRealm;
     private Menu mMenu;
+    private News mNews;
+    private String mUrlType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar =  findViewById(R.id.toolbar);
+        toolbar.setTitleTextColor(ContextCompat.getColor(getBaseContext(),R.color.GreyPrimary));
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle(getResources().getString(R.string.nav_rcmd_news));
 
-        this.mRealm = RealmController.with(this).getRealm();
+
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setCancelable(true);
         mProgressDialog.getWindow().setLayout(50,50);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mProgressBar =  findViewById(R.id.progressBar);
+
 
         Intent intent  = getIntent();
-        mId = intent.getStringExtra(News.KEY_ID);
-        mNewsLinkUrl = intent.getStringExtra(News.KEY_URL);
-        mNewsTitle = intent.getStringExtra(News.KEY_TITLE);
-        mImgUrl = intent.getStringExtra(News.KEY_IMG_URL);
+
+        mNews = intent.getExtras().getParcelable(News.TAG);
+        getSupportActionBar().setTitle(mNews.getSource());
+        mUrlType = intent.getStringExtra(News.KEY_URL_TYPE);
+
         mFontSize = intent.getIntExtra(News.KEY_FONT_SIZE, (int)getResources().
                 getDimension(R.dimen.webview_text_size_middle));
 
@@ -80,7 +84,7 @@ public class WebViewActivity extends AppCompatActivity
 
     private void setWebview()
     {
-        mWebView = (WebView) findViewById(R.id.webView);
+        mWebView =  findViewById(R.id.webView);
         mWebView.setWebViewClient(new WebViewClient()
                                   {
                                       @Override
@@ -123,7 +127,14 @@ public class WebViewActivity extends AppCompatActivity
             mFontSize = (int) getResources().getDimension(R.dimen.webview_text_size_middle);
         mWebView.getSettings().setTextZoom(mFontSize);
 
-        mWebView.loadUrl(mNewsLinkUrl);
+        if(mUrlType.equals(TYPE_NEWS_URL))
+        {
+            mWebView.loadUrl(mNews.getUrl());
+        }
+        else if(mUrlType.equals(TYPE_SOURCE_URL))
+        {
+            mWebView.loadUrl(mNews.getSourceUrl());
+        }
 
     }
 
@@ -139,29 +150,9 @@ public class WebViewActivity extends AppCompatActivity
     {
         mMenu =  menu;
 
-        getMenuInflater().inflate(R.menu.webview, menu);
-        MenuItem shareItem = menu.findItem(R.id.action_share);
-        MenuItem favItem = menu.findItem(R.id.action_fav);
+        getMenuInflater().inflate(R.menu.webview_overflow, menu);
 
-        /*
-        FavNews favNews = new FavNews();
-        favNews.setId(mId);
-        if(isDuplicateNews(favNews))
-        {
-            favItem.setIcon(R.drawable.ic_star_white_24dp);
-        }
-        else
-        {
-            favItem.setIcon(R.drawable.ic_star_border_white_24dp);
-        } */
-
-
-        mShareActionProvider = (ShareActionProvider)
-                MenuItemCompat.getActionProvider(shareItem);
-
-        setShareIntent(createShareIntent());
-
-        return super.onCreateOptionsMenu(menu);
+        return true;
 
     }
 
@@ -169,60 +160,38 @@ public class WebViewActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
-        if(id == R.id.action_refresh)
+
+        if(id == R.id.action_share)
         {
-            Log.i(TAG, "action_refresh");
-            mWebView.reload();
+
+            Intent intent = MenuUtils.createShareIntent(mNews, this);
+            String share = getString(R.string.news_share);
+            Intent chooser = Intent.createChooser(intent,share);
+
+            startActivity(chooser);
+
         }
-        else if(id == R.id.action_fav)
+        else if(id == R.id.action_bookmark)
         {
-            Log.i(TAG, "fav_news");
-            saveFavNews();
+            RealmHelper helper = new RealmHelper(getBaseContext());
+            helper.bookMarkNews(mNews);
+
         }
+        else if( id == R.id.action_source)
+        {
+            showBrowser();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveFavNews()
+    private void showBrowser()
     {
-        FavNews favNews = new FavNews();
-
-        if(null == mNewsLinkUrl)
-            mNewsLinkUrl = " ";
-
-        if(null == mNewsTitle)
-            mNewsTitle = " ";
-
-        favNews.setId(mId);
-        favNews.setTitle(mNewsTitle);
-        favNews.setUrl(mNewsLinkUrl);
-        favNews.setImgUrl(mImgUrl);
-
-        if( false == isDuplicateNews(favNews) )
-        {
-            mRealm.beginTransaction();
-            mRealm.copyToRealm(favNews);
-            mRealm.commitTransaction();
-
-            mMenu.findItem(R.id.action_fav).setIcon(R.drawable.ic_star_white_24dp);
-            vibrate();
-        }
-
-    }
-
-    private void cancleSave(FavNews favNews)
-    {
-        int position = RealmController.with(this).getIndexOf(favNews);
-        RealmResults<FavNews> results = mRealm.where(FavNews.class)
-                .findAll();
-
-        mRealm.beginTransaction();
-        results.remove(position);
-        mRealm.commitTransaction();
-
-        mMenu.findItem(R.id.action_fav).setIcon(R.drawable.ic_star_border_white_24dp);
-        vibrate();
-
+        String url = mNews.getUrl();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
     }
 
     private void vibrate()
@@ -232,37 +201,12 @@ public class WebViewActivity extends AppCompatActivity
     }
 
 
-
-    private boolean isDuplicateNews(FavNews favNews)
-    {
-         FavNews tempNews = RealmController.with(this).getFavNews(favNews.getId());
-
-        if(tempNews == null)
-            return false;
-
-        return true;
-    }
-
     private void setShareIntent(Intent shareIntent)
     {
         if(null != mShareActionProvider)
         {
             mShareActionProvider.setShareIntent(shareIntent);
         }
-
-    }
-
-    private Intent createShareIntent()
-    {
-        String bori = getResources().getString(R.string.bori);
-        String newText = "[" + bori + "]" + mNewsTitle + " " + mNewsLinkUrl;
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, mNewsTitle);
-        shareIntent.putExtra(Intent.EXTRA_TEXT,newText);
-
-        return shareIntent;
 
     }
 
