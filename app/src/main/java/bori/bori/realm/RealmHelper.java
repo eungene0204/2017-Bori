@@ -5,23 +5,36 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.widget.Toast;
 import bori.bori.R;
-import bori.bori.news.FavNews;
 import bori.bori.news.News;
+import bori.bori.utility.TimeUtils;
 import io.realm.*;
 import io.realm.exceptions.RealmPrimaryKeyConstraintException;
+
+import java.util.Calendar;
+import java.util.List;
 
 public class RealmHelper
 {
     public final static String TAG = "RealmHelper";
 
+    public final static String TYPE_TODAY = "today";
+    public final static String TYPE_SAVE = "save";
+    public final static String TYPE_WEEK_TODAY = "week_today";
+    public final static String TYPE_WEEK_SAVED = "week_saved";
+
     private Realm mRealm;
     private Context mContext;
-    private Category mCategories;
+    private SavedCategory mCategories;
 
     public RealmHelper(Context context)
     {
         mRealm = Realm.getDefaultInstance();
         this.mContext = context;
+    }
+
+    public Realm getRealm()
+    {
+        return mRealm;
     }
 
 
@@ -46,14 +59,12 @@ public class RealmHelper
 
                     realm.insertOrUpdate(favNews);
 
-                    addCategory(favNews.getCategory(), realm, favNews.getId());
+                    addSavedCategory(favNews.getCategory(), realm);
 
                     String msg = mContext.getResources().
                             getString(R.string.toast_bookmark_success);
 
                     Toast.makeText(mContext,msg, Toast.LENGTH_SHORT).show();
-
-
                 }
                 catch(RealmPrimaryKeyConstraintException e)
                 {
@@ -76,9 +87,9 @@ public class RealmHelper
         });
     }
 
-    private void addCategory(String category, Realm realm, String id)
+    private void addSavedCategory(String category, Realm realm)
     {
-        Category result = mRealm.where(Category.class)
+        SavedCategory result = mRealm.where(SavedCategory.class)
                 .equalTo("mCategory", category).findFirst();
 
 
@@ -88,12 +99,49 @@ public class RealmHelper
         }
         else
         {
-            Category newCategory = new Category();
+            SavedCategory newCategory = new SavedCategory();
             newCategory.setCategory(category);
             newCategory.setValue(1);
 
+            int today = TimeUtils.getToday();
+
+            newCategory.setToday(today);
+
             realm.insertOrUpdate(newCategory);
         }
+
+    }
+
+    public void addTodayCategory(String category)
+    {
+        mRealm.executeTransaction(new Realm.Transaction()
+        {
+            @Override
+            public void execute(Realm realm)
+            {
+
+                TodayCategory result = realm.where(TodayCategory.class)
+                        .equalTo("mCategory", category).findFirst();
+
+                if(null != result)
+                {
+                    result.increaseVal();
+                }
+                else
+                {
+                    TodayCategory newCategory = new TodayCategory();
+                    newCategory.setCategory(category);
+                    newCategory.setValue(1);
+
+                    int today = TimeUtils.getToday();
+
+                    newCategory.setToday(today);
+
+                    realm.insertOrUpdate(newCategory);
+                }
+
+            }
+        });
 
     }
 
@@ -108,15 +156,64 @@ public class RealmHelper
         return results;
     }
 
-    public RealmResults<Category> getCategory()
+    public RealmResults getCategory(String category)
     {
-        RealmResults<Category> results;
 
-        results = mRealm.where(Category.class)
-                .sort("mValue", Sort.DESCENDING).limit(5).
-                        findAll();
+        if(category.equals(TYPE_TODAY))
+        {
+            RealmResults<TodayCategory> results;
 
-        return results;
+            results = mRealm.where(TodayCategory.class)
+                    .in("mToday",TimeUtils.getTodayArray())
+                    .sort("mValue", Sort.DESCENDING).limit(5).
+                            findAll();
+
+            return results;
+        }
+        else if(category.equals(TYPE_SAVE))
+        {
+            RealmResults<SavedCategory> results;
+
+            results = mRealm.where(SavedCategory.class)
+                    .in("mToday",TimeUtils.getTodayArray())
+                    .sort("mValue", Sort.DESCENDING).limit(5).
+                            findAll();
+
+            return results;
+
+        }
+        else if(category.equals(TYPE_WEEK_TODAY))
+        {
+            RealmResults<TodayCategory> temp;
+            RealmResults<TodayCategory> results;
+
+            temp = mRealm.where(TodayCategory.class)
+                    .findAll();
+
+            results = mRealm.where(TodayCategory.class)
+                    .greaterThanOrEqualTo("mToday", TimeUtils.getSevenDaysAgo())
+                    .lessThanOrEqualTo("mToday", TimeUtils.getToday())
+                    .sort("mValue",Sort.DESCENDING).limit(5)
+                    .findAll();
+
+            return results;
+
+        }
+        else if(category.equals((TYPE_WEEK_SAVED)))
+        {
+            RealmResults<SavedCategory> results;
+
+            results = mRealm.where(SavedCategory.class)
+                    .greaterThanOrEqualTo("mToday", TimeUtils.getSevenDaysAgo())
+                    .lessThanOrEqualTo("mToday", TimeUtils.getToday())
+                    .sort("mValue", Sort.DESCENDING).limit(5)
+                    .findAll();
+
+            return results;
+        }
+
+        return null;
+
     }
 
     public void delete(final String id, String category)
@@ -150,7 +247,7 @@ public class RealmHelper
 
     private void decreaseCategory(String category)
     {
-        Category _category = mRealm.where(Category.class).
+        SavedCategory _category = mRealm.where(SavedCategory.class).
                 equalTo("mCategory", category)
                 .findFirst();
 
@@ -163,7 +260,7 @@ public class RealmHelper
             _category.decreaseVal();
             if(_category.getValue() == 0)
             {
-                mRealm.where(Category.class).equalTo("mCategory", category).findFirst()
+                mRealm.where(SavedCategory.class).equalTo("mCategory", category).findFirst()
                         .deleteFromRealm();
             }
         }
@@ -182,5 +279,4 @@ public class RealmHelper
             }
         });
     }
-
 }

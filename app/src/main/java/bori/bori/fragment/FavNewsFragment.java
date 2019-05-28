@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 
 import bori.bori.R;
 import bori.bori.adapter.FavNewsAdapter;
-import bori.bori.news.FavNews;
+import bori.bori.realm.FavNews;
 import bori.bori.realm.RealmHelper;
 import bori.bori.utility.FontUtils;
 import bori.bori.utility.SwipeUtil;

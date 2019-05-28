@@ -44,6 +44,7 @@ public class WebViewActivity extends AppCompatActivity
     private Menu mMenu;
     private News mNews;
     private String mUrlType;
+    private RealmHelper mRealmHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -59,15 +60,12 @@ public class WebViewActivity extends AppCompatActivity
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle(getResources().getString(R.string.nav_rcmd_news));
 
-
-
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setIndeterminate(false);
         mProgressDialog.setCancelable(true);
         mProgressDialog.getWindow().setLayout(50,50);
 
         mProgressBar =  findViewById(R.id.progressBar);
-
 
         Intent intent  = getIntent();
 
@@ -78,9 +76,19 @@ public class WebViewActivity extends AppCompatActivity
         mFontSize = intent.getIntExtra(News.KEY_FONT_SIZE, (int)getResources().
                 getDimension(R.dimen.webview_text_size_middle));
 
+        mRealmHelper = new RealmHelper(getApplicationContext());
+
+        saveCount(mNews);
+
         setWebview();
 
    }
+
+    private void saveCount(News news)
+    {
+        mRealmHelper.addTodayCategory(news.getCategory());
+
+    }
 
     private void setWebview()
     {

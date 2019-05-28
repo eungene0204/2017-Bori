@@ -19,6 +19,7 @@ import bori.bori.fragment.HeadNewsBottomSheetFragment;
 import bori.bori.news.News;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
     public static final String TAG = HeadNewsAdapter.class.getSimpleName();
 
     private Context mContext;
-    private List<News> mData = Collections.emptyList();
+    private List<News> mData;
     private int mFontSize = 0;
     private final FragmentManager mFragmentManager;
 
@@ -187,6 +188,8 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
         private void startWebViewActivity(News news)
         {
             Intent intent = new Intent(mContext, WebViewActivity.class);
+
+            news.setCategory(mContext.getString(R.string.nav_head_news));
 
             intent.putExtra(News.TAG, news);
             intent.putExtra(News.KEY_URL_TYPE, WebViewActivity.TYPE_NEWS_URL);

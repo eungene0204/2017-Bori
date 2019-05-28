@@ -33,7 +33,7 @@ public class News implements Parcelable
     private String mDate;
     private String mCategory;
     private String mOriginal;
-
+    private String mToday;
 
     private String mSimilarityLevel;
     private Drawable mSourceLogo;
@@ -82,6 +82,15 @@ public class News implements Parcelable
         mSimilarityLevel = similarityLevel;
     }
 
+    public String getToday()
+    {
+        return mToday;
+    }
+
+    public void setToday(String today)
+    {
+        mToday = today;
+    }
 
     public void setSourceLogo(Drawable logo)
     {

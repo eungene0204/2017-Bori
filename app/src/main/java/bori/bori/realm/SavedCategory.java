@@ -3,19 +3,41 @@ package bori.bori.realm;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Date;
 
-public class Category extends RealmObject
+public class SavedCategory extends RealmObject
 {
+
+    public SavedCategory()
+    {
+    }
+
     @PrimaryKey
     private String mCategory;
 
     private float mValue;
+    private int mToday;
+    private Date mDate;
 
-    public Category()
+
+    public int getToday()
     {
+        return mToday;
+    }
+
+    public void setToday(int today)
+    {
+        mToday = today;
+    }
+
+    public Date getDate()
+    {
+        return mDate;
+    }
+
+    public void setDate(Date date)
+    {
+        mDate = date;
     }
 
     public void increaseVal()
@@ -47,7 +69,5 @@ public class Category extends RealmObject
     {
         mValue = value;
     }
-
-
 
 }

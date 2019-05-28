@@ -22,7 +22,7 @@ import bori.bori.fragment.FavNewsBottomSheetFragment;
 import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
-import bori.bori.news.FavNews;
+import bori.bori.realm.FavNews;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;

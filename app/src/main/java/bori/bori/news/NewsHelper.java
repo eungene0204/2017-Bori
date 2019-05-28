@@ -7,6 +7,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import androidx.core.content.ContextCompat;
 import bori.bori.R;
+import bori.bori.utility.TimeUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -213,6 +214,8 @@ public class NewsHelper
         mSourceLogo.put("영남일보", ContextCompat.getDrawable(mActivity, R.drawable.yeongnamilbo));
         mSourceLogo.put("금강일보", ContextCompat.getDrawable(mActivity, R.drawable.kumkangilbo));
         mSourceLogo.put("참여일보", ContextCompat.getDrawable(mActivity, R.drawable.chamyeo));
+        mSourceLogo.put("씨네21", ContextCompat.getDrawable(mActivity, R.drawable.cine21));
+
 
     }
 
@@ -235,6 +238,7 @@ public class NewsHelper
             String category = "";
             String original = "";
             String simLelvel = "";
+            String today = "";
 
             JSONObject jsonObject  = null;
             try
@@ -279,6 +283,7 @@ public class NewsHelper
                 news.setSourceLogo(getSourceLogo(source));
                 news.setSimilarityLevel(simLelvel);
                 news.setOriginal(original);
+                news.setToday(String.valueOf(TimeUtils.getToday()));
 
                 newsArrayList.add(news);
             }

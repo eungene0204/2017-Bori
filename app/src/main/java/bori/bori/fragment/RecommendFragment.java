@@ -78,8 +78,8 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     {
         super.onCreate(savedInstanceState);
 
-        RealmHelper realmHelper = new RealmHelper(getContext());
-        realmHelper.deleteAll();
+        //RealmHelper realmHelper = new RealmHelper(getContext());
+        //realmHelper.deleteAll();
 
         initDataSet();
         mProgressDialog = new ProgressDialog(getActivity());

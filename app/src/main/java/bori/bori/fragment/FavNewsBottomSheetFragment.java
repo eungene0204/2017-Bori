@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import bori.bori.R;
 import bori.bori.news.News;
-import bori.bori.news.FavNews;
+import bori.bori.realm.FavNews;
 import bori.bori.realm.RealmHelper;
 import bori.bori.utility.MenuUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;

@@ -1,4 +1,4 @@
-package bori.bori.news;
+package bori.bori.realm;
 
 import android.graphics.drawable.Drawable;
 import io.realm.RealmObject;

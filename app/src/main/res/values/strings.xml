@@ -62,7 +62,11 @@
     <string name="joong_ang">중앙일보</string>
     <string name="huff_post">허핑턴포스트</string>
 
-    <string name="no_data">저장된 뉴스가 없습니다.</string>
+    <string name="no_saved_news">오늘 저장된 뉴스가 없습니다.</string>
+    <string name="no_today_news">오늘 읽은 뉴스가 없습니다.</string>
+    <string name="no_week_today_news">지난 7일간 읽은 뉴스가 없습니다.</string>
+    <string name="no_week_saved_news">지난 7일간 저장된 뉴스가 없습니다.</string>
+
 
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
