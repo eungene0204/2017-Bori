@@ -1,5 +1,6 @@
 package bori.bori.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
 import bori.bori.fragment.HeadNewsBottomSheetFragment;
 import bori.bori.news.News;
+import bori.bori.news.NewsHelper;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
 
     private OnHeadNewsClickListener mOnNewsClickListener;
 
-    public HeadNewsAdapter(Context mContext, List<News> data, FragmentManager fragmentManager)
+    public HeadNewsAdapter(Context mContext, List<News> data, FragmentManager fragmentManager )
     {
         this.mContext = mContext;
         this.mData = data;

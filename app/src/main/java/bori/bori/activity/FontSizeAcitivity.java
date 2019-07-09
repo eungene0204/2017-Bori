@@ -52,7 +52,6 @@ public class FontSizeAcitivity extends AppCompatActivity
 
         setCheckedButton(mFontSize);
 
-
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGrp);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {

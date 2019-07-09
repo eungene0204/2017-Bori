@@ -1,13 +1,32 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:windowBackground">@color/colorWindowsBack</item>
         <item name="colorAccent">@color/colorAccent</item>
 
     </style>
+
+    <style name="DarkAppTheme" >
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/darkColorPrimary</item>
+        <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
+        <item name="android:windowBackground">@color/darkColorWindowsBack</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/black</item>
+
+    </style>
+
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -16,16 +35,12 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-         <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:colorControlNormal">@color/GreyPrimary</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
-        <!--
-        <item name="android:colorControlNormal">@android:color/white</item>
-        -->
-
-         <item name="android:statusBarColor">@android:color/transparent</item>
-
+        <item name="android:textColor">?android:textColorPrimary</item>
 
     </style>
 
@@ -49,18 +64,39 @@
 
     </style>
 
+    <style name="DarkBottomSheet" parent="@style/Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/bg_dark_bottom_sheet</item>
+
+    </style>
+
+
     <style name="BaseBottomSheetDialog" parent="@style/Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheet</item>
 
     </style>
 
+     <style name="DarkBaseBottomSheetDialog" parent="@style/Theme.Design.BottomSheetDialog">
+         <item name="android:windowIsFloating">false</item>
+         <item name="bottomSheetStyle">@style/DarkBottomSheet</item>
+         <item name="android:navigationBarColor">@color/black</item>
+         <!--
+         <item name="android:windowLightStatusBar">false</item>
+         <item name="android:statusBarColor">@color/black</item>
+         -->
+
+     </style>
+
+
     <style name="BottomSheetDialogTheme" parent="BaseBottomSheetDialog" />
+    <style name="DarkBottomSheetDialogTheme" parent="DarkBaseBottomSheetDialog" />
 
 
     <style name="ToolbarColoredBackArrow" parent="AppTheme">
         <item name="android:textColorSecondary">@color/GreyPrimary</item>
+
     </style>
+
 
 
 </resources>

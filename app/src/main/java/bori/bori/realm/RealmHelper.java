@@ -125,7 +125,16 @@ public class RealmHelper
 
                 if(null != result)
                 {
-                    result.increaseVal();
+                    if(result.getToday() != TimeUtils.getToday())
+                    {
+                        result.setToday(TimeUtils.getToday());
+                        result.setValue(1);
+                    }
+                    else
+                    {
+                        result.increaseVal();
+                    }
+
                 }
                 else
                 {
@@ -158,7 +167,6 @@ public class RealmHelper
 
     public RealmResults getCategory(String category)
     {
-
         if(category.equals(TYPE_TODAY))
         {
             RealmResults<TodayCategory> results;

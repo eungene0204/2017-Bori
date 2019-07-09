@@ -38,14 +38,27 @@
 
             </RelativeLayout>
 
-            <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/chart_news"
-                    android:layout_below="@id/topic"
-                    android:layout_marginTop="10dp"
+            <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_below="@id/topic"
                     android:background="@color/white"
-            />
+                    android:layout_marginTop="10dp"
+            >
+
+                <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/chart_news"
+                        android:layout_below="@id/topic"
+                        android:layout_width="match_parent"
+                        android:layout_centerHorizontal="true"
+                        android:layout_height="300dp"
+                        android:background="@color/white"
+                />
+
+
+            </LinearLayout>
+
 
         </RelativeLayout>
 

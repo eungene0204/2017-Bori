@@ -4,18 +4,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -23,9 +19,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import bori.bori.adapter.RecommendCardAdapter;
+import bori.bori.news.Category;
 import bori.bori.news.NewsHelper;
 import bori.bori.news.NewsInfo;
-import bori.bori.realm.RealmHelper;
 import bori.bori.utility.FontUtils;
 import bori.bori.utility.JsonUtils;
 import bori.bori.utility.SortUtils;
@@ -34,13 +31,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.gson.Gson;
-import io.realm.Sort;
 import org.json.JSONObject;
 
 import java.util.*;
 
 import bori.bori.R;
-import bori.bori.adapter.RecommendListAdapter;
 import bori.bori.news.News;
 import bori.bori.user.MyUser;
 import bori.bori.volley.VolleyHelper;
@@ -51,19 +46,18 @@ import bori.bori.volley.VolleySingleton;
  * Created by Eugene on 2017-03-07.
  */
 
-public class RecommendFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener
+public class RecommendCardFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener
     ,VolleyHelper.OnVolleyHelperRecommendNewsListener, NewsHelper.OnSortListener
 {
-    public static final String TAG = "RecommendFragment";
+    public static final String TAG = "RecommendCardFragment";
 
     public static final String TYPE_NEW_UPDATE = "new_update";
     public static final String TYPE_LOAD_MORE = "load_more";
 
     private RecyclerView mRecyclerView;
-    private RecommendListAdapter mAdapter;
+    private RecommendCardAdapter mCardAdapter;
     private OnRecommendFragmentListener mListener;
-    private List<News> mNewsList;
-    private List<News> mMoreNewsList;
+    private List<Category> mCategoryList;
     private MyUser mMyUser;
 
     private VolleyHelper mVolleyHelper;
@@ -114,7 +108,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_recommend, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_recommend_card, container, false);
 
         setToolbar();
 
@@ -133,10 +127,10 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
         //getNewsInfo();
 
-        int count = mAdapter.getItemCount();
+        int count = mCardAdapter.getItemCount();
         if( mMyUser != null && (count == 0))
         {
-            readNews();
+            getNews();
         }
 
 
@@ -167,54 +161,25 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void setRecyclerView(View rootView)
     {
-        mRecyclerView =  rootView.findViewById(R.id.list);
+        mRecyclerView =  rootView.findViewById(R.id.card_list);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        mRecyclerView.setItemViewCacheSize(20);
+        mRecyclerView.setHasFixedSize(true);
+
         LinearLayoutManager layoutManager = new
                 LinearLayoutManager(getActivity().getApplication());
 
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mAdapter = new RecommendListAdapter(getActivity().getApplicationContext(),mNewsList,
-                getActivity().getSupportFragmentManager(),mRecyclerView);
-        mAdapter.setFontSize(mFontSize);
-        mAdapter.setNewsClickListener((RecommendListAdapter.OnNewsClickListener) getActivity());
-        mAdapter.setOnLoadMoreListener(new RecommendListAdapter.OnLoadMoreListener()
-        {
-            @Override
-            public void onLoadMore()
-            {
-                if(!mMoreNewsList.isEmpty())
-                {
-                    loadMore();
-                }
-            }
-        });
+        mCardAdapter = new RecommendCardAdapter(getActivity().getSupportFragmentManager(),
+                getContext(),mCategoryList, getActivity());
 
-        mRecyclerView.setAdapter(mAdapter);
+        mCardAdapter.setHasStableIds(true);
+
+        mRecyclerView.setAdapter(mCardAdapter);
 
     }
 
-    private void loadMore()
-    {
-        mNewsList.add(null);
-        mAdapter.notifyItemInserted(mNewsList.size() - 1);
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mNewsList.remove(mNewsList.size() - 1);
-                mAdapter.notifyItemRemoved(mNewsList.size());
-
-                addMoreNews();
-
-                mAdapter.notifyDataSetChanged();
-                mAdapter.setLoaded();
-
-            }
-        },2000);
-    }
 
     @Override
     public void onAttach(Context context)
@@ -242,7 +207,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
     public void onRefresh()
     {
         mIsRefresh = true;
-        readNews();
+        getNews();
     }
 
     @Override
@@ -253,8 +218,6 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
         appCompatActivity.getSupportActionBar().setTitle(R.string.bori_news);
 
         setAppBar();
-
-
     }
 
     private void setAppBar()
@@ -269,7 +232,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
     }
 
-    private void readNews()
+    private void getNews()
     {
         Log.i(TAG, "send news request");
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
@@ -281,7 +244,7 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
         if(false == mIsRefresh)
         {
             mProgressDialog.setMessage("맞춤뉴스를 검색 중 입니다.");
-            mProgressDialog.show();
+            //mProgressDialog.show();
         }
 
     }
@@ -289,63 +252,45 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void initDataSet()
     {
-        mNewsList= new ArrayList<News>();
-        mMoreNewsList = new ArrayList<News>();
+        mCategoryList = new ArrayList<>();
     }
 
-    private void addMoreNews()
-    {
-        if(!mMoreNewsList.isEmpty())
-        {
-            int addSize = 15;
-
-            try
-            {
-                for(int i = 0 ; i < addSize; i++)
-                {
-                    mNewsList.add(mMoreNewsList.get(i));
-                    mMoreNewsList.remove(i);
-                }
-
-            }
-            catch (IndexOutOfBoundsException e)
-            {
-                Log.e(TAG,String.valueOf(e));
-            }
-
-        }
-
-    }
 
     private void setDataSet(NewsInfo newsInfo)
     {
         Log.i(TAG,"setDataset");
         ArrayList<News> newsList = (ArrayList<News>) newsInfo.getNewsList();
 
-        mNewsList.clear();
-        mMoreNewsList.clear();
 
-        int originSize = newsList.size();
-        int advanceListSize = 15;
-
-        if(newsList.size() >= advanceListSize)
+        for(News news : newsList)
         {
-            List temp = new ArrayList<News>(newsList.subList(0,advanceListSize));
+            if(!(mCategoryList.contains(news)))
+            {
+                Category category = new Category(news.getCategory());
+                category.setLevel(news.getSimilarityLevel());
+                category.addNews(news);
 
-            mNewsList.addAll(temp);
+                mCategoryList.add(category);
 
-            mMoreNewsList.addAll(new ArrayList<News>(newsList.subList(advanceListSize, originSize)));
+            }
+            else
+            {
+                for(Category category : mCategoryList)
+                {
+                    if(category.getCategory().equals(news.getCategory()))
+                    {
+                        category.addNews(news);
+                        break;
+                    }
+                }
+            }
+
         }
-        else
-        {
-            mNewsList.addAll(newsList);
-        }
 
+        //Collections.shuffle(mNewsList);
 
-        Collections.shuffle(mNewsList);
-        Collections.shuffle(mMoreNewsList);
-
-        mAdapter.notifyDataSetChanged();
+        mCardAdapter.notifyDataSetChanged();
+        mCardAdapter.initSubViewHolder(mCategoryList.size());
     }
 
     @Override
@@ -397,8 +342,8 @@ public class RecommendFragment extends Fragment implements SwipeRefreshLayout.On
 
         }
 
-        Collections.sort(mNewsList, cmp);
-        mAdapter.notifyDataSetChanged();
+        //Collections.sort(mNewsList, cmp);
+        mCardAdapter.notifyDataSetChanged();
 
     }
 

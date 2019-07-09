@@ -1,8 +1,13 @@
 package bori.bori.news;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.Objects;
 
 /**
  * Created by Eugene on 2017-08-10.
@@ -22,6 +27,7 @@ public class News implements Parcelable
     public static String KEY_IMG_URL = "imgUrl";
     public static String KEY_FONT_SIZE = "fontSize";
     public static String KEY_CATEGORY = "category";
+    public static String KEY_NEWS_LIST= "newsList";
 
     private String mNewsType;
     private String mTitle;
@@ -55,6 +61,8 @@ public class News implements Parcelable
         mDate = in.readString();
         mCategory = in.readString();
         mSimilarityLevel = in.readString();
+        mOriginal = in.readString();
+
     }
 
     public static final Creator<News> CREATOR = new Creator<News>()
@@ -203,6 +211,7 @@ public class News implements Parcelable
         this.mNewsType = mNewsType;
     }
 
+
     @Override
     public int describeContents()
     {
@@ -222,5 +231,21 @@ public class News implements Parcelable
         dest.writeString(mDate);
         dest.writeString(mCategory);
         dest.writeString(mSimilarityLevel);
+        dest.writeString(mOriginal);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        Category category= (Category) o;
+        return getCategory().equals(category.getCategory());
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(getId());
     }
 }

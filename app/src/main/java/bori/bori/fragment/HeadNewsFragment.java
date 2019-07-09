@@ -51,7 +51,6 @@ public class HeadNewsFragment extends Fragment implements
     private VolleyHelper mVolleyHelper;
     private ProgressDialog mProgressDialog;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ArrayList<News> mNewsArrayList;
 
     private boolean mIsRefresh = false;
     private int mFontSize;

@@ -48,34 +48,6 @@ public class RcmdNewsBottomSheetDialogFragment extends BottomSheetDialogFragment
 
         mHelper = new RealmHelper(getContext());
 
-        LinearLayout shareLayout = view.findViewById(R.id.share_layout);
-
-        shareLayout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Intent intent = MenuUtils.createShareIntent(mNews,getActivity());
-                String share = getString(R.string.news_share);
-                Intent chooser = Intent.createChooser(intent,share);
-
-                startActivity(chooser);
-
-            }
-        });
-
-        LinearLayout bookmarkLayout = view.findViewById(R.id.news_bookmark);
-        bookmarkLayout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                mHelper.bookMarkNews(mNews);
-                dismiss();
-
-            }
-
-        });
 
         LinearLayout snsLayout = view.findViewById(R.id.sns_original_layout);
         snsLayout.setOnClickListener(new View.OnClickListener()
@@ -89,35 +61,11 @@ public class RcmdNewsBottomSheetDialogFragment extends BottomSheetDialogFragment
             }
         });
 
-        LinearLayout sourceLayout = view.findViewById(R.id.news_source);
-        sourceLayout.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                startWebView();
-                dismiss();
-            }
-        });
 
         return view;
 
     }
 
-    private void startWebView()
-    {
-
-        Context context = getContext();
-        Intent intent = new Intent(context, WebViewActivity.class);
-
-        intent.putExtra(News.TAG, mNews);
-        intent.putExtra(News.KEY_URL_TYPE,WebViewActivity.TYPE_SOURCE_URL);
-        //intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-
-    }
 
     private void showSnsOriginalDialog(String original)
     {

@@ -5,7 +5,6 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:foreground="?android:attr/selectableItemBackground"
-              android:background="@color/white"
               android:clickable="true"
 
 >
@@ -14,7 +13,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top"
-                android:background="@color/white"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
         >
@@ -47,14 +45,14 @@
                     android:layout_height="wrap_content"
                     tools:text="test tset test test"
                     android:textSize="18dp"
-                    android:textColor="#000000"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:textStyle="bold"
                     android:layout_toLeftOf="@id/news_img"
                     android:layout_below="@id/source_img"
                     android:layout_alignParentLeft="true"
                     android:layout_marginLeft="10dp"
                     android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:layout_marginRight="5dp"
             />
 
@@ -74,7 +72,6 @@
         <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
         >
@@ -82,13 +79,13 @@
             <TextView
                     android:id="@+id/date"
                     android:layout_alignParentLeft="true"
-                    android:layout_alignParentBottom="true"
                     tools:text="19-6-22"
                     android:textSize="13dp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:layout_centerVertical="true"
             />
 
             <ImageView
@@ -97,8 +94,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="1dp"
-                    android:layout_centerVertical="true"
                     android:backgroundTint="@color/GreyPrimary"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_overflow_grey"
                     android:padding="5dp"
                     android:background="?selectableItemBackgroundBorderless"

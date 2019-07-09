@@ -7,84 +7,6 @@
               android:padding="15dp"
 >
 
-    <LinearLayout
-            android:id="@+id/share_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-
-    >
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_share_grey"
-                android:layout_gravity="center"
-        />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:text="@string/news_share"
-                android:layout_gravity="center"
-        />
-
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/news_bookmark"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-
-    >
-
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_bookmark_grey"
-                android:layout_gravity="center"
-        />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:text="@string/news_bookmark"
-                android:layout_gravity="center"
-        />
-
-        </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/news_source"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-
-    >
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_biz_grey"
-                android:layout_gravity="center"
-        />
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:text="@string/news_biz"
-                android:layout_gravity="center"
-        />
-
-    </LinearLayout>
 
     <LinearLayout
             android:id="@+id/sns_original_layout"
@@ -112,8 +34,5 @@
         />
 
     </LinearLayout>
-
-
-
 
 </LinearLayout>

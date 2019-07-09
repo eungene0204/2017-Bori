@@ -1,25 +1,23 @@
 package bori.bori.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
+import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AlertDialog;
-import android.view.View;
+import bori.bori.application.BoriApplication;
 import bori.bori.fragment.*;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import bori.bori.R;
 
@@ -46,7 +44,7 @@ import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity
-        implements  RecommendFragment.OnRecommendFragmentListener
+        implements  RecommendCardFragment.OnRecommendFragmentListener
     ,RecommendListAdapter.OnNewsClickListener,HeadNewsFragment.OnHeadNewsFragmentInteractionListener,HeadNewsAdapter.OnHeadNewsClickListener
 {
 
@@ -55,16 +53,14 @@ public class MainActivity extends AppCompatActivity
     private static final String TWITTER_KEY = "mYh1sti2PMGKmiU0C8pPLbGGl";
     private static final String TWITTER_SECRET = "0Kf8DNw8HklsHnINLGOPRryZMo3EvSCJvIL0Edh9JKS6ShCfx1";
 
-    private TextView mUserNameTextView;
-    private TextView mUserEmailTextView;
     private ImageView mUserImageView;
-    private AlertDialog mAlertDialog;
 
     private SessionManager session;
     private MyUser mMyUser;
-    private RecommendFragment mRecommendFragment;
+    private RecommendCardFragment mRecommendCardFragment;
 
     private int mWebViewFontSize;
+    private boolean mIsDark = false;
 
     private BottomNavigationView mBottomNavigationView;
     private ImageView mSortImageView;
@@ -81,9 +77,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
-        //TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
-        //Fabric.with(this, new Twitter(authConfig));
+        BoriApplication.getInstance().checkDarkTheme(this);
+
         setContentView(R.layout.activity_main);
 
         setRealmConfiguration();
@@ -92,8 +89,8 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState == null)
         {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            mRecommendFragment = new RecommendFragment();
-            transaction.add(R.id.fragment_container,mRecommendFragment, RecommendFragment.TAG);
+            mRecommendCardFragment = new RecommendCardFragment();
+            transaction.add(R.id.fragment_container, mRecommendCardFragment, RecommendCardFragment.TAG);
             transaction.commit();
         }
 
@@ -105,6 +102,7 @@ public class MainActivity extends AppCompatActivity
         setToolbarTitle(toolbar);
         setSortPopup(toolbar);
 
+
         mBottomNavigationView = findViewById(R.id.bottom_navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener()
         {
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity
                 switch (item.getItemId())
                 {
                     case R.id.btm_nav_rmcd_news:
-                        checkFragment(new RecommendFragment(),RecommendFragment.TAG);
+                        checkFragment(new RecommendCardFragment(), RecommendCardFragment.TAG);
                         return true;
 
                     case R.id.btm_nav_head_news:
@@ -137,6 +135,8 @@ public class MainActivity extends AppCompatActivity
 
         setProfilePic(mMyUser.getProfileUrl());
 
+        //set theme
+
         //requestRcmdNews();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -144,6 +144,7 @@ public class MainActivity extends AppCompatActivity
         mClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
     }
+
 
     private void setSortPopup(Toolbar toolbar)
     {
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity
 
         SortNewsBottomSheetFragment sortNewsBottomSheetFragment = new SortNewsBottomSheetFragment();
 
-        sortNewsBottomSheetFragment.setOnSortListener(mRecommendFragment);
+        sortNewsBottomSheetFragment.setOnSortListener(mRecommendCardFragment);
         sortNewsBottomSheetFragment.setRetainInstance(true);
 
         sortNewsBottomSheetFragment.show(getSupportFragmentManager(),

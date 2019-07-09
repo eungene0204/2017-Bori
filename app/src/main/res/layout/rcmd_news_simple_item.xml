@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:paddingTop="20dp"
+                android:clickable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+
+>
+
+
+    <RelativeLayout
+            android:id="@+id/layout_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+    >
+
+        <RelativeLayout
+                android:id="@+id/layout_source"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="10dp"
+        >
+
+            <ImageView
+                    android:id="@+id/source_img"
+                    android:layout_width="50dp"
+                    android:layout_height="20dp"
+                    tools:src="@drawable/busan"
+                    android:layout_alignParentLeft="true"
+
+            />
+
+            <TextView
+                    android:id="@+id/source_text"
+                    tools:text="source"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+            />
+
+        </RelativeLayout>
+
+
+        <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="test"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:layout_alignParentLeft="true"
+                android:layout_toLeftOf="@+id/news_img"
+                android:layout_below="@id/layout_source"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+
+        />
+
+        <ImageView
+                android:id="@+id/news_img"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
+                tools:src="@drawable/insight"
+
+        />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+            android:layout_below="@id/layout_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+    >
+
+         <TextView
+                android:id="@+id/date"
+                tools:text="2019년4월18일"
+                android:textSize="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+        />
+
+        <ImageView
+                android:id="@+id/down_arrow"
+                android:src="@drawable/ic_arrow_down_grey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:padding="5dp"
+                android:layout_centerVertical="true"
+                android:background="?selectableItemBackgroundBorderless"
+                android:clickable="true"
+
+        />
+
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

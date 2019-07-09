@@ -35,7 +35,6 @@ public class FavNewsFragment extends Fragment
     private RecyclerView mRecyclerView;
     private RealmHelper mRealmHelper;
 
-
     private int mFontSize;
     private FavNewsAdapter mAdapter;
 

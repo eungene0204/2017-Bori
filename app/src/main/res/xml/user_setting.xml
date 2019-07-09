@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+        <SwitchPreferenceCompat
+                app:key="@string/key_dark"
+                app:title="@string/dark_theme"
+                app:defaultValue="false"
+        />
+
+
+    <PreferenceCategory
+            app:key="help_category"
+            app:title="Help">
+
+        <Preference
+                app:key="feedback"
+                app:summary="Report technical issues or suggest new features"
+                app:title="Send feedback"/>
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

@@ -1,5 +1,6 @@
 package bori.bori.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -7,8 +8,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,9 +22,10 @@ import java.util.List;
 
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
-import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
+import bori.bori.fragment.RcmdSimpleNewsListFragment;
 import bori.bori.news.News;
 
+import bori.bori.news.NewsHelper;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 /**
@@ -49,11 +49,9 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
     private boolean mIsLoading;
     private OnLoadMoreListener mOnLoadMoreListener;
 
-
     private OnNewsClickListener mOnNewsClickListener;
 
     public RecommendListAdapter(Context context,  List<News> newsList, FragmentManager fragmentManager, RecyclerView recyclerView)
-
     {
         mContext = context;
         mNewsList = newsList;
@@ -102,86 +100,72 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public class NewsViewHolder extends RecyclerView.ViewHolder
     {
-        private Context mContext;
+        public final TextView mSourceText;
+        public final ImageView mSourceImg;
+        public final TextView mTitleText;
+        public final ImageView mNewsImg;
+        public final TextView  mDateText;
+        public final ImageView mOverflowImg;
+        public News mNews;
 
-        private News mNews;
-
-        public View mLevelBar;
-        public TextView mTitleView;
-        public ImageView mNewsImgView;
-        public TextView mCategoryView;
-        public TextView mSourceView;
-        public TextView mDateView;
-        public ImageView mCardOverFlow;
-        public ImageView mSourceLogo;
-        public CardView mCardView;
-
-        public NewsViewHolder(View v, Context context)
+        public NewsViewHolder(View itemView)
         {
-            super(v);
-            mContext = context;
+            super(itemView);
 
-            mLevelBar = v.findViewById(R.id.level_bar);
-            mCardView = v.findViewById(R.id.card_view);
-            mCategoryView = v.findViewById(R.id.card_category);
-            mTitleView = v.findViewById(R.id.card_title);
-            mNewsImgView = v.findViewById(R.id.news_img);
-            mSourceView = v.findViewById(R.id.card_source);
-            mDateView = v.findViewById(R.id.card_date);
-            mCardOverFlow = v.findViewById(R.id.card_overflow);
-            mSourceLogo = v.findViewById(R.id.source_img);
+            itemView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    //setFontSize(mOnNewsClickListener.onSetFontSize());
+                    startWebViewActivity(getNews());
+
+                }
+            });
+
+            mSourceText = itemView.findViewById(R.id.source_text);
+            mSourceImg = itemView.findViewById(R.id.source_img);
+            mTitleText= itemView.findViewById(R.id.title_text);
+            mNewsImg = itemView.findViewById(R.id.news_img);
+            mDateText = itemView.findViewById(R.id.date);
+            mOverflowImg = itemView.findViewById(R.id.overflow_img);
+
+            mOverflowImg.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    showBottomSheet(getNews());
+
+                }
+            });
 
             setRoundedImg();
 
-            mCardView.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    setFontSize(mOnNewsClickListener.onSetFontSize());
-                    startWebViewActivity(getNews());
-                }
-            });
-
-
-            mCardOverFlow.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    showNewsBottomSheet(getNews());
-                }
-
-            });
-
         }
 
-        private void showNewsBottomSheet(News news)
+        private void showBottomSheet(News news)
         {
-
-            RcmdNewsBottomSheetDialogFragment rcmdNewsBottomSheetDialogFragment =
-                    RcmdNewsBottomSheetDialogFragment.newInstance();
+             RcmdSimpleNewsListFragment rcmdSimpleNewsListFragment =
+                    RcmdSimpleNewsListFragment.newInstance();
 
             Bundle bundle = new Bundle();
             bundle.putParcelable(News.TAG, news);
 
-            rcmdNewsBottomSheetDialogFragment.setArguments(bundle);
+            rcmdSimpleNewsListFragment.setArguments(bundle);
 
-
-            rcmdNewsBottomSheetDialogFragment.show(mFragmentManager,
-                    RcmdNewsBottomSheetDialogFragment.TAG);
+            rcmdSimpleNewsListFragment.show(mFragmentManager,
+                    RcmdSimpleNewsListFragment.TAG);
 
         }
-
 
         private void setRoundedImg()
         {
             GradientDrawable drawable = (GradientDrawable) mContext.getDrawable(R.drawable.round_background);
-            mNewsImgView.setBackground(drawable);
-            mNewsImgView.setClipToOutline(true);
+            mNewsImg.setBackground(drawable);
+            mNewsImg.setClipToOutline(true);
 
         }
-
 
         private void startWebViewActivity(News news)
         {
@@ -189,13 +173,11 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             intent.putExtra(News.TAG, news);
             intent.putExtra(News.KEY_URL_TYPE, WebViewActivity.TYPE_NEWS_URL);
-
             intent.putExtra(News.KEY_FONT_SIZE, getFontSize());
-
-
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             mContext.startActivity(intent);
+
         }
 
 
@@ -208,6 +190,7 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
         {
             mNews = news;
         }
+
     }
 
     private class LoadingViewHolder extends RecyclerView.ViewHolder
@@ -228,9 +211,9 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
         if(viewType == VIEW_TYPE_NEWS)
         {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.rcmd_news_card,parent,false);
+                    .inflate(R.layout.rcmd_news_item,parent,false);
 
-            return new NewsViewHolder(view,mContext);
+            return new NewsViewHolder(view);
 
         }
         else if(viewType == VIEW_TYPE_LOADING)
@@ -271,23 +254,18 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
     {
         News news = mNewsList.get(position);
 
-        setLevelBar(news,holder);
-
-        String category = news.getCategory();
-        holder.mCategoryView.setText(category);
-
         String title = news.getTitle();
-        holder.mTitleView.setText(title);
+        holder.mTitleText.setText(title);
 
-        ImageView imageView = holder.mNewsImgView;
+        ImageView imageView = holder.mNewsImg;
         String imgUrl = news.getImgUrl();
         setImageSrc(imgUrl,position,imageView,news);
 
         String source = news.getSource();
-        holder.mSourceView.setText(source);
+        holder.mSourceText.setText(source);
 
         String date = news.getDate();
-        holder.mDateView.setText(date);
+        holder.mDateText.setText(date);
 
         Drawable logo = news.getSourceLogo();
 
@@ -297,56 +275,19 @@ public class RecommendListAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     }
 
-    private void setLevelBar(News news, NewsViewHolder holder)
-    {
-        View bar = holder.mLevelBar;
-        String level = news.getSimilarityLevel();
-
-        if(level.equals("1"))
-        {
-            bar.setBackgroundTintList(ContextCompat.
-                    getColorStateList(mContext,R.color.sim_level_1));
-
-        }
-        else if(level.equals("2"))
-        {
-            bar.setBackgroundTintList(ContextCompat.
-                    getColorStateList(mContext,R.color.sim_level_2));
-
-        }
-        else if(level.equals("3"))
-        {
-            bar.setBackgroundTintList(ContextCompat.
-                    getColorStateList(mContext,R.color.sim_level_3));
-
-        }
-        else if(level.equals("4"))
-        {
-            bar.setBackgroundTintList(ContextCompat.
-                    getColorStateList(mContext,R.color.sim_level_4));
-
-        }
-        else if(level.equals("5"))
-        {
-            bar.setBackgroundTintList(ContextCompat.
-                    getColorStateList(mContext,R.color.sim_level_5));
-
-        }
-
-    }
 
     private void setSourceLogo(Drawable logo, NewsViewHolder holder)
     {
         if(null != logo)
         {
-            holder.mSourceLogo.setImageDrawable(logo);
-            holder.mSourceView.setVisibility(View.INVISIBLE);
-            holder.mSourceLogo.setVisibility(View.VISIBLE);
+            holder.mSourceImg.setImageDrawable(logo);
+            holder.mSourceText.setVisibility(View.INVISIBLE);
+            holder.mSourceImg.setVisibility(View.VISIBLE);
         }
         else
         {
-            holder.mSourceLogo.setVisibility(View.INVISIBLE);
-            holder.mSourceView.setVisibility(View.VISIBLE);
+            holder.mSourceImg.setVisibility(View.INVISIBLE);
+            holder.mSourceText.setVisibility(View.VISIBLE);
         }
 
     }

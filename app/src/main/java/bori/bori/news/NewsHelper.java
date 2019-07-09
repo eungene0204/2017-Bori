@@ -1,13 +1,12 @@
 package bori.bori.news;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 import android.util.Log;
 import androidx.core.content.ContextCompat;
 import bori.bori.R;
 import bori.bori.utility.TimeUtils;
+//import org.json.JSONArray;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,8 +17,6 @@ import org.jsoup.nodes.Element;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NewsHelper
 {
@@ -246,7 +243,8 @@ public class NewsHelper
                 jsonObject = jsonArray.getJSONObject(i);
 
                 id = jsonObject.getString("id");
-                title = getTitle(jsonObject.getString("title"));
+                source = getSource(jsonObject.getString("source"));
+                title = getTitle(jsonObject.getString("title"), source);
                 //title = jsonObject.getString("title");
 
                 if(newsType.equals(News.KEY_RECOMMEND_NEWS))
@@ -257,7 +255,6 @@ public class NewsHelper
                 link = jsonObject.getString("link");
                 //imgSrc = jsonObject.getString("img src");
                 imgSrc = getImgSrc(jsonObject);
-                source = getSource(jsonObject.getString("source"));
                 sourceUrl = getSourceUrl(jsonObject.getString("source"));
                 date = getDate(jsonObject.getString("published"));
                 category = jsonObject.getString(News.KEY_CATEGORY);
@@ -293,7 +290,7 @@ public class NewsHelper
         return newsArrayList;
     }
 
-    private Drawable getSourceLogo(String source)
+    public Drawable getSourceLogo(String source)
     {
         Drawable logo =  mSourceLogo.get(source);
 
@@ -399,11 +396,12 @@ public class NewsHelper
         return url;
     }
 
-    private String getTitle(String title)
+    private String getTitle(String title, String source)
     {
-        String[] titleOnly = title.split("-");
+        int index = title.lastIndexOf("-");
+        String sub = title.substring(0,index);
 
-        return titleOnly[0];
+        return sub;
 
     }
 
