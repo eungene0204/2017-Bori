@@ -1,20 +1,25 @@
 package bori.bori.activity;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AlertDialog;
 import bori.bori.application.BoriApplication;
+import bori.bori.connection.ConnectionDetector;
 import bori.bori.fragment.*;
+import bori.bori.news.SrcLogoManager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import bori.bori.R;
 
 import bori.bori.adapter.HeadNewsAdapter;
+import bori.bori.user.UserManager;
 import bori.bori.utility.FontUtils;
 import bori.bori.utility.JsonUtils;
 import bori.bori.volley.VolleyHelper;
@@ -32,7 +38,6 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 
 import bori.bori.adapter.RecommendListAdapter;
@@ -55,7 +60,6 @@ public class MainActivity extends AppCompatActivity
 
     private ImageView mUserImageView;
 
-    private SessionManager session;
     private MyUser mMyUser;
     private RecommendCardFragment mRecommendCardFragment;
 
@@ -66,36 +70,48 @@ public class MainActivity extends AppCompatActivity
     private ImageView mSortImageView;
 
 
-
-    /**
+        /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient mClient;
     private VolleyHelper mVolleyHelper;
+    private Activity mActivity = this;
+    private boolean mIsNetworkAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-
         super.onCreate(savedInstanceState);
         BoriApplication.getInstance().checkDarkTheme(this);
 
         setContentView(R.layout.activity_main);
+
+        mIsNetworkAvailable = ConnectionDetector.isNetworkAvailable(this);
 
         setRealmConfiguration();
 
         //Fragment
         if(savedInstanceState == null)
         {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            mRecommendCardFragment = new RecommendCardFragment();
-            transaction.add(R.id.fragment_container, mRecommendCardFragment, RecommendCardFragment.TAG);
-            transaction.commit();
+            if(mIsNetworkAvailable)
+            {
+                mRecommendCardFragment = new RecommendCardFragment();
+                FragmentHelper.checkFragment(this, mRecommendCardFragment,
+                        RecommendCardFragment.TAG, null);
+
+            }
+            else
+            {
+                String msg = getResources().getString(R.string.no_connection);
+                FragmentHelper.setEmptyFragment(this, msg);
+            }
+
         }
 
-        sessionCheck();
-        setUser();
+        mMyUser = new MyUser(getApplicationContext());
+        UserManager.sessionCheck(getApplicationContext());
+        UserManager.setUser(mMyUser, getApplicationContext());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -113,19 +129,23 @@ public class MainActivity extends AppCompatActivity
                 switch (item.getItemId())
                 {
                     case R.id.btm_nav_rmcd_news:
-                        checkFragment(new RecommendCardFragment(), RecommendCardFragment.TAG);
+                        FragmentHelper.checkFragment(mActivity, new RecommendCardFragment(),
+                                RecommendCardFragment.TAG, null);
                         return true;
 
                     case R.id.btm_nav_head_news:
-                        checkFragment(new HeadNewsFragment(),HeadNewsFragment.TAG);
+                        FragmentHelper.checkFragment(mActivity, new HeadNewsFragment(),
+                                HeadNewsFragment.TAG, null);
                         return true;
 
                     case R.id.btm_nav_fav:
-                        checkFragment(new FavNewsFragment(),FavNewsFragment.TAG);
+                        FragmentHelper.checkFragment(mActivity, new FavNewsFragment(),
+                                FavNewsFragment.TAG, null);
                         return true;
 
                     case R.id.btm_nav_stat:
-                        checkFragment(new StatFragment(),StatFragment.TAG);
+                        FragmentHelper.checkFragment(mActivity, new StatFragment(),
+                                StatFragment.TAG, null);
                         return true;
                 }
                 return false;
@@ -134,6 +154,7 @@ public class MainActivity extends AppCompatActivity
 
 
         setProfilePic(mMyUser.getProfileUrl());
+        initSrcLogoManager();
 
         //set theme
 
@@ -143,6 +164,11 @@ public class MainActivity extends AppCompatActivity
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         mClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
+    }
+
+    private void initSrcLogoManager()
+    {
+        SrcLogoManager.getInstance().init(this);
     }
 
 
@@ -175,39 +201,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void checkFragment(Fragment fragment, String tag)
-    {
-
-        Fragment nextFragment = getSupportFragmentManager()
-                .findFragmentByTag(tag);
-
-        if(nextFragment == null)
-        {
-            Bundle bundle = new Bundle();
-            bundle.putInt(FontUtils.KEY_FONT_SIZE, mWebViewFontSize);
-            fragment.setArguments(bundle);
-
-        }
-        else
-        {
-            if(!nextFragment.isVisible())
-            {
-                fragment = nextFragment;
-            }
-
-        }
-
-        replaceFragment(fragment,tag);
-    }
-
-    private void replaceFragment(Fragment fragment, String tag)
-    {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container,fragment, tag);
-        ft.addToBackStack(null);
-        ft.commit();
-    }
-
 
     private void setToolbarTitle(Toolbar toolbar)
     {
@@ -217,6 +210,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    //For test. need to be removed
     private void requestRcmdNews()
     {
         initVolley();
@@ -241,20 +235,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void setUser()
-    {
-        mMyUser = new MyUser(getApplicationContext());
-        mMyUser.setName(session.getUserName());
-        mMyUser.setEmail(session.getUserEmail());
-        mMyUser.setScreenName(session.getScreenName());
-        mMyUser.setProfileUrl(session.getProfilePicUrl());
-    }
 
-    private void sessionCheck()
-    {
-        session = new SessionManager(getApplicationContext());
-        session.checkLogin();
-    }
 
     private void setRealmConfiguration()
     {
@@ -267,6 +248,29 @@ public class MainActivity extends AppCompatActivity
 
         Realm.setDefaultConfiguration(realmConfiguration);
     }
+
+
+    /*
+    RequestListener<String, GlideDrawable> glideCallback = new RequestListener<String, GlideDrawable>(){
+        @Override
+        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource)
+        {
+            return false;
+
+        }
+        @Override
+        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            },500);
+
+            return false;
+
+        }
+    }; */
 
     public void setProfilePic (String url)
     {
@@ -283,7 +287,27 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        UrlImageViewHelper.setUrlDrawable(mUserImageView,url);
+        //UrlImageViewHelper.setUrlDrawable(mUserImageView,url);
+        Glide.with(this)
+                .load(url)
+                .listener(new RequestListener<Drawable>()
+                {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource)
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource)
+                    {
+                        return false;
+                    }
+                })
+                .error(R.drawable.ic_user_profile_grey)
+                .into(mUserImageView);
+
+
     }
 
     private void showUserBottomSheet()

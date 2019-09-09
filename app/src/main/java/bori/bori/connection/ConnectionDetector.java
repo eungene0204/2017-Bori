@@ -3,6 +3,9 @@ package bori.bori.connection;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.widget.Toast;
+
+import bori.bori.R;
 
 /**
  * Created by Eugene on 2017-02-23.
@@ -10,20 +13,19 @@ import android.net.NetworkInfo;
 
 public class ConnectionDetector
 {
-    final private Context context;
 
-    public ConnectionDetector(Context context)
+    private ConnectionDetector()
     {
-        this.context = context;
     }
 
-    public boolean isConnectingTOInternet()
+    static public boolean isNetworkAvailable(Context context)
     {
         ConnectivityManager connectivityManager = (ConnectivityManager)
-                this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connectivityManager != null)
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+
+        if(info != null)
         {
-            NetworkInfo info = connectivityManager.getActiveNetworkInfo();
             if(info.getType() == ConnectivityManager.TYPE_WIFI)
             {
                 //WIFI
@@ -38,6 +40,8 @@ public class ConnectionDetector
         else
         {
             //not connected
+            String msg = context.getResources().getString(R.string.no_connection);
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 
             return false;
         }

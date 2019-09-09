@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 import bori.bori.R;
+import bori.bori.news.SrcLogoManager;
 
 public class BoriApplication extends Application
 {
@@ -17,6 +18,7 @@ public class BoriApplication extends Application
 
     public static BoriApplication getInstance()
     {
+
         if(mInstance == null)
         {
             mInstance = new BoriApplication();
@@ -24,6 +26,7 @@ public class BoriApplication extends Application
 
         return mInstance;
     }
+
 
     @Override
     public void onCreate()

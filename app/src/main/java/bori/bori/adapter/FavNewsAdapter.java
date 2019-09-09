@@ -22,6 +22,7 @@ import bori.bori.fragment.FavNewsBottomSheetFragment;
 import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
+import bori.bori.news.SrcLogoManager;
 import bori.bori.realm.FavNews;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import io.realm.OrderedRealmCollection;
@@ -40,6 +41,7 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter
     private Realm mRealm;
     private NewsHelper mNewsHelper;
     private Drawable mSourceLogo = null;
+
 
     public FavNewsAdapter(@Nullable OrderedRealmCollection data, boolean autoUpdate)
     {
@@ -85,34 +87,18 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter
         String source = news.getSource();
         _holder.mSourceView.setText(source);
 
-        mSourceLogo = findSourceLogo(source);
+        mSourceLogo = SrcLogoManager.getInstance().findSourceLogo(source);
 
-        setImageSrc(imgUrl,imageView,mNewsHelper.getSourceLogo());
+        setImageSrc(imgUrl,imageView);
 
         setSourceLogo(source,_holder);
 
         _holder.setNews(news);
 
-
     }
 
-    private Drawable findSourceLogo(String source)
-    {
 
-        Map<String, Drawable> logoMap = mNewsHelper.getSourceLogo();
-        Drawable logo = null;
-
-
-        if(logoMap.containsKey(source))
-        {
-            logo = logoMap.get(source);
-        }
-
-        return logo;
-
-    }
-
-    private void setImageSrc(String url, ImageView imageView, Map<String,Drawable> logoMap)
+    private void setImageSrc(String url, ImageView imageView)
     {
 
         if(url.isEmpty())
@@ -260,7 +246,7 @@ public class FavNewsAdapter extends RealmRecyclerViewAdapter
         int onSetFontSize();
     }
 
-     private void setSourceLogo(String source, ViewHolder holder)
+    private void setSourceLogo(String source, ViewHolder holder)
     {
 
         if(null != mSourceLogo)

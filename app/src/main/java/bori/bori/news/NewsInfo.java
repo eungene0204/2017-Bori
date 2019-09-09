@@ -9,7 +9,7 @@ public class NewsInfo
     private List<News> mNewsList = null;
     private String mNewsType ;
 
-    public String getmNewsType()
+    public String getNewsType()
     {
         return mNewsType;
     }

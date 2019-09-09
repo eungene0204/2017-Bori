@@ -120,18 +120,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mContext = getApplicationContext();
 
-        mCd = new ConnectionDetector(mContext);
+        //mCd = new ConnectionDetector(mContext);
         mSession = new SessionManager(mContext);
 
         mMyUser = new MyUser(mContext);
 
         //Check if internet present
+        ConnectionDetector.isNetworkAvailable(this);
+        /*
         if(!mCd.isConnectingTOInternet())
         {
             mAlert.showAlertDialog(LoginActivity.this, "Internet Connection Error",
                     "Please connect internet",false);
             return;
-        }
+        } */
 
         mtwtLoginButton = (TwitterLoginButton) findViewById(R.id.login_button);
         mtwtLoginButton.setCallback(new Callback<TwitterSession>()

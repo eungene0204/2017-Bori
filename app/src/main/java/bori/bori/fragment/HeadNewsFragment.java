@@ -86,7 +86,7 @@ public class HeadNewsFragment extends Fragment implements
         mVolleyHelper = new VolleyHelper(requestQueue,
                 (AppCompatActivity)getActivity(),mProgressDialog);
 
-        mVolleyHelper.setmHeadNewsListener(this);
+        mVolleyHelper.setHeadNewsListener(this);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class HeadNewsFragment extends Fragment implements
     private void requestHeadNews()
     {
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.jsonRequest(jsonObject,
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.headRequest(jsonObject,
                 VolleyHelper.HEAD_NEWS_URL);
 
         jsonObjectRequest.setShouldCache(false);

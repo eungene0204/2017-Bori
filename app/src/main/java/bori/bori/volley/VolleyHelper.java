@@ -3,17 +3,34 @@ package bori.bori.volley;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ViewDataBinding;
+import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
+import bori.bori.R;
+import bori.bori.databinding.RcmdNewsSubItemBinding;
+import bori.bori.fragment.EmptyFragment;
+import bori.bori.fragment.FragmentHelper;
+import bori.bori.news.Category;
 import bori.bori.news.NewsHelper;
 import bori.bori.news.NewsInfo;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
@@ -23,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import bori.bori.news.News;
 
@@ -38,7 +56,7 @@ public class VolleyHelper
     static final public String HEAD_NEWS_URL = LOCAL + "/head";
     static final public String RCMD_NEWS_URL = LOCAL + "/rcmd";
 
-    final int SOCKET_TIME = 60000;
+    final int SOCKET_TIME = 50000;
 
     /*
      static final private String url = "http://ec2-13-125-11-197.ap-northeast-2.compute.amazonaws.com" +
@@ -59,6 +77,7 @@ public class VolleyHelper
     private OnVolleyHelperRecommendNewsListener mRecommendNewsListener;
 
     private NewsHelper mNewsHelpler;
+    private List<RcmdNewsSubItemBinding> mRcmdNewsSubItemBindings;
 
     public VolleyHelper(final RequestQueue requestQueue, AppCompatActivity activity,
                         ProgressDialog progressDialog)
@@ -68,15 +87,16 @@ public class VolleyHelper
         mProgressDialog = progressDialog;
 
         this.mNewsHelpler = new NewsHelper(mActivity);
+        this.mRcmdNewsSubItemBindings = new ArrayList<>();
     }
 
 
-    public void setmRecommendNewsListener(OnVolleyHelperRecommendNewsListener mRecommendNewswListener)
+    public void setRecommendNewsListener(OnVolleyHelperRecommendNewsListener mRecommendNewswListener)
     {
         this.mRecommendNewsListener = mRecommendNewswListener;
     }
 
-    public void setmHeadNewsListener(OnVolleyHelperHeadNewsListener mHeadNewsListener)
+    public void setHeadNewsListener(OnVolleyHelperHeadNewsListener mHeadNewsListener)
     {
         this.mHeadNewsListener = mHeadNewsListener;
     }
@@ -88,7 +108,7 @@ public class VolleyHelper
     }
 
 
-    public JsonObjectRequest jsonRequest(JSONObject jsonObject, String url)
+    public JsonObjectRequest headRequest(JSONObject jsonObject, String url)
     {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, jsonObject,
@@ -99,10 +119,10 @@ public class VolleyHelper
                     {
                         Log.i(TAG,response.toString());
 
-                        NewsInfo newsInfo= parseJSON(response);
-                        String newsType = newsInfo.getmNewsType();
+                        NewsInfo newsInfo= mNewsHelpler.getNewsInfo(response);
+                        String newsType = newsInfo.getNewsType();
 
-                        updateNews(newsInfo, newsType);
+                        mNewsHelpler.updateNews(newsInfo, newsType, mHeadNewsListener);
 
                         if(null!=mProgressDialog)
                             mProgressDialog.dismiss();
@@ -134,7 +154,7 @@ public class VolleyHelper
         return jsonObjectRequest;
     }
 
-     public JsonObjectRequest rcmdRequest(JSONObject jsonObject, String url)
+    public JsonObjectRequest rcmdRequest(JSONObject jsonObject, String url)
     {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
@@ -145,10 +165,13 @@ public class VolleyHelper
                     {
                         Log.i(TAG,response.toString());
 
-                        NewsInfo newsInfo= parseJSON(response);
-                        String newsType = newsInfo.getmNewsType();
+                        NewsInfo newsInfo= mNewsHelpler.getNewsInfo(response);
+                        if(newsInfo == null)
+                            return;
 
-                        updateNews(newsInfo, newsType);
+                        String newsType = newsInfo.getNewsType();
+
+                        mNewsHelpler.updateNews(newsInfo, newsType, mRecommendNewsListener);
 
                         if(null!=mProgressDialog)
                             mProgressDialog.dismiss();
@@ -158,16 +181,23 @@ public class VolleyHelper
 
                     }
                 }, new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error)
+            {
+                Log.e(TAG,error.toString());
+                if(error instanceof NoConnectionError ||error instanceof ServerError)
                 {
-                    @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        Log.e(TAG,error.toString());
+                    String msg = mActivity.getResources().
+                            getString(R.string.connection_error);
+                    FragmentHelper.setEmptyFragment(mActivity, msg);
+                }
 
-                        if(null != mSwipeRefreshLayout)
-                            mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+
+                if(null != mSwipeRefreshLayout)
+                    mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         int socketTimeout = SOCKET_TIME;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
@@ -177,106 +207,16 @@ public class VolleyHelper
         return jsonObjectRequest;
     }
 
-
-    private void updateNews(NewsInfo newsInfo, String newsType)
-    {
-
-        Log.i(TAG,"updateNews");
-        Log.i(TAG,"NewsType: " + newsType);
-
-        try
-        {
-            if(News.KEY_HEAD_LINE_NEWS.equals(newsType))
-            {
-                Log.i(TAG,"update HEAD  NEWS");
-                mHeadNewsListener.onNewsUpdate(newsInfo);
-            }
-            else if( News.KEY_RECOMMEND_NEWS.equals(newsType))
-            {
-                Log.i(TAG,"update RECM NEWS");
-
-                if(mRecommendNewsListener != null)
-                {
-                    mRecommendNewsListener.onNewsUpdate(newsInfo);
-                }
-
-                //saveRcmdNewsInfo(newsInfo);
-            }
-
-        }
-        catch (NullPointerException e)
-        {
-            Log.e(TAG, e.toString());
-        }
-
-
-    }
-    private void saveRcmdNewsInfo(NewsInfo newsInfo)
-    {
-        SharedPreferences prefs = mActivity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        Gson gson = new Gson();
-
-        String json = gson.toJson(newsInfo);
-
-        editor.putString(NewsInfo.TAG,json);
-        editor.commit();
-
-    }
-
-    private NewsInfo parseJSON(JSONObject response)
-    {
-        Log.i(TAG,"parseJSON");
-        NewsInfo newsInfo = new NewsInfo();
-
-        ArrayList<News> newsArrayList = new ArrayList<News>();
-        String newsType ="";
-        String category = "";
-
-        try
-        {
-
-            newsType = response.getString(News.KEY_NEWS_TYPE);
-
-            JSONArray jsonArray = response.getJSONArray("news_list");
-
-            newsArrayList = mNewsHelpler.getNewsInfo(jsonArray, newsType);
-
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
-
-        newsInfo.setNewsType(newsType);
-        newsInfo.setNewsList(newsArrayList);
-
-        return newsInfo;
-
-    }
-
-    private String getHttpheader(String url)
-    {
-        String header = "http:";
-        String newUrl = header + url;
-
-        return newUrl;
-    }
-
-    /***
-    public interface OnVolleyHelperListener
-    {
-        void onRecommendNewsUpdateListener(NewsInfo newsInfo);
-        void onHeadNewsUpdateListener(NewsInfo newsInfo);
-    } **/
-
-    public interface OnVolleyHelperHeadNewsListener
+    public interface OnNewsUpdateListener
     {
         void onNewsUpdate(NewsInfo newsInfo);
     }
 
-    public interface OnVolleyHelperRecommendNewsListener
+    public interface OnVolleyHelperHeadNewsListener extends OnNewsUpdateListener
     {
-        void onNewsUpdate(NewsInfo newsInfo);
+    }
+
+    public interface OnVolleyHelperRecommendNewsListener extends OnNewsUpdateListener
+    {
     }
 }

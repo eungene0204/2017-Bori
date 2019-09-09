@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -20,6 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import bori.bori.adapter.RecommendCardAdapter;
+import bori.bori.databinding.FragmentRecommendCardBinding;
+import bori.bori.databinding.RcmdNewsSubItemBinding;
 import bori.bori.news.Category;
 import bori.bori.news.NewsHelper;
 import bori.bori.news.NewsInfo;
@@ -67,6 +72,8 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
     private boolean mIsRefresh = false;
     private int mFontSize;
 
+    private FragmentRecommendCardBinding mBinding;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -100,7 +107,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
                         (getActivity().getApplicationContext()).getRequestQueue();
         mVolleyHelper = new VolleyHelper(requestQueue,
                 (AppCompatActivity)getActivity(),mProgressDialog);
-        mVolleyHelper.setmRecommendNewsListener(this);
+        mVolleyHelper.setRecommendNewsListener(this);
 
     }
 
@@ -108,17 +115,20 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_recommend_card, container, false);
-
+        //View rootView = inflater.inflate(R.layout.fragment_recommend_card, container, false);
+         mBinding = DataBindingUtil.inflate
+                (inflater,R.layout.fragment_recommend_card,container,false);
         setToolbar();
 
-        mSwipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+        //mSwipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = mBinding.swiperefresh;
         mSwipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         mVolleyHelper.setSwipeRefreshLayout(mSwipeRefreshLayout);
 
-        setRecyclerView(rootView);
+
+        setRecyclerView();
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
@@ -134,7 +144,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         }
 
 
-        return rootView;
+        return mBinding.getRoot();
     }
 
     private void setToolbar()
@@ -154,14 +164,17 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
 
         if(newsInfo != null)
         {
-            setDataSet(newsInfo);
+            //setDataSet(newsInfo);
         }
     }
 
 
-    private void setRecyclerView(View rootView)
+    private void setRecyclerView()
     {
-        mRecyclerView =  rootView.findViewById(R.id.card_list);
+
+        //mRecyclerView =  rootView.findViewById(R.id.card_list);
+
+        mRecyclerView = mBinding.cardRecyclerview;
         mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setItemViewCacheSize(20);
         mRecyclerView.setHasFixedSize(true);
@@ -171,14 +184,43 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
 
         mRecyclerView.setLayoutManager(layoutManager);
 
+        //List<RcmdNewsSubItemBinding> subItemBindings = asyncInflate();
+
         mCardAdapter = new RecommendCardAdapter(getActivity().getSupportFragmentManager(),
-                getContext(),mCategoryList, getActivity());
+                mCategoryList,getContext(), getActivity());
 
         mCardAdapter.setHasStableIds(true);
 
-        mRecyclerView.setAdapter(mCardAdapter);
+        mBinding.cardRecyclerview.setAdapter(mCardAdapter);
+        mBinding.setCardList(mCategoryList);
 
     }
+
+    private List<RcmdNewsSubItemBinding> asyncInflate()
+    {
+        int size = 30;
+        List<RcmdNewsSubItemBinding> subItemBindings = new ArrayList<>();
+
+        for(int i = 0; i < size; i++)
+        {
+            AsyncLayoutInflater inflater = new AsyncLayoutInflater(getActivity().getApplicationContext());
+            inflater.inflate(R.layout.rcmd_news_sub_item, null, new AsyncLayoutInflater.OnInflateFinishedListener()
+            {
+                @Override
+                public void onInflateFinished(@NonNull View view, int resid, @Nullable ViewGroup parent)
+                {
+
+                    RcmdNewsSubItemBinding mRcmdNewsSubItemBinding = DataBindingUtil.bind(view);
+                    subItemBindings.add(mRcmdNewsSubItemBinding);
+                }
+            });
+
+        }
+
+        return subItemBindings;
+
+    }
+
 
 
     @Override
@@ -260,8 +302,6 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
     {
         Log.i(TAG,"setDataset");
         ArrayList<News> newsList = (ArrayList<News>) newsInfo.getNewsList();
-
-
         for(News news : newsList)
         {
             if(!(mCategoryList.contains(news)))
@@ -290,7 +330,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         //Collections.shuffle(mNewsList);
 
         mCardAdapter.notifyDataSetChanged();
-        mCardAdapter.initSubViewHolder(mCategoryList.size());
+        //mCardAdapter.initSubViewHolder(mCategoryList.size());
     }
 
     @Override

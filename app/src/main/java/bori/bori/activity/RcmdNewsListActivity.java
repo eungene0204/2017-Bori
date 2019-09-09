@@ -12,6 +12,7 @@ import bori.bori.R;
 import bori.bori.adapter.RecommendListAdapter;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
+import bori.bori.news.SrcLogoManager;
 
 import java.util.List;
 
@@ -75,7 +76,8 @@ public class RcmdNewsListActivity extends AppCompatActivity
         mNewsList = getIntent().getParcelableArrayListExtra(News.KEY_NEWS_LIST);
 
         for(News news : mNewsList)
-            news.setSourceLogo(mNewsHelper.getSourceLogo(news.getSource()));
+            news.setSourceLogo(SrcLogoManager.getInstance().findSourceLogo(news.getSource()));
+            //news.setSourceLogo(mNewsHelper.getSourceLogo(news.getSource()));
     }
 
     @Override
