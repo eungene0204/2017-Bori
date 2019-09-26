@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -40,6 +42,7 @@ public class News implements Parcelable
     private String mCategory;
     private String mOriginal;
     private String mToday;
+    private String mStringSrc;
 
     private String mSimilarityLevel;
     private Drawable mSourceLogo;
@@ -62,6 +65,7 @@ public class News implements Parcelable
         mCategory = in.readString();
         mSimilarityLevel = in.readString();
         mOriginal = in.readString();
+        mStringSrc = in.readString();
 
     }
 
@@ -105,6 +109,7 @@ public class News implements Parcelable
         mSourceLogo = logo;
     }
 
+    @Nullable
     public Drawable getSourceLogo()
     {
         return mSourceLogo;
@@ -118,6 +123,17 @@ public class News implements Parcelable
     public void setSource(String source)
     {
         mSource = source;
+        mStringSrc = source;
+    }
+
+    public void setStringSrc(String src)
+    {
+        mStringSrc = src;
+    }
+
+    public String getStringSrc()
+    {
+        return mStringSrc;
     }
 
     public String getDate()
@@ -169,6 +185,7 @@ public class News implements Parcelable
     {
         mId = id;
     }
+
 
 
     public String getTitle()
@@ -232,6 +249,7 @@ public class News implements Parcelable
         dest.writeString(mCategory);
         dest.writeString(mSimilarityLevel);
         dest.writeString(mOriginal);
+        dest.writeString(mStringSrc);
     }
 
     @Override

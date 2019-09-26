@@ -8,7 +8,7 @@
     <string name="no_connection">네트워크가 연결되지 않았습니다.</string>
     <string name="server_error">서버에 문제가 생겼습니다.</string>
     <string name="connection_error">네트워크 혹은 서버에 연결되지 않았습니다.</string>
-    <string name="no_news">맞춤뉴스를 찾지 못했습니다.</string>
+    <string name="no_news">뉴스를 찾지 못했습니다.</string>
 
     <string name="nav_head_news">주요뉴스</string>
     <string name="nav_rcmd_news">맞춤뉴스</string>
@@ -126,4 +126,5 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="default_notification_channel_id">notification_channel_id</string>
 </resources>

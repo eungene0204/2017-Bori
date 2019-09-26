@@ -17,6 +17,7 @@ import android.widget.TextView;
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
 import bori.bori.fragment.HeadNewsBottomSheetFragment;
+import bori.bori.image.ImageManager;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
@@ -175,17 +176,10 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
                 }
             });
 
-            setRoundedImg();
+            ImageManager.setRoundedImg(mNewsImg, mContext);
 
         }
 
-        private void setRoundedImg()
-        {
-            GradientDrawable drawable = (GradientDrawable) mContext.getDrawable(R.drawable.round_background);
-            mNewsImg.setBackground(drawable);
-            mNewsImg.setClipToOutline(true);
-
-        }
 
         private void startWebViewActivity(News news)
         {

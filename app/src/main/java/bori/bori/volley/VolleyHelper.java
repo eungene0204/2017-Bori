@@ -108,7 +108,7 @@ public class VolleyHelper
     }
 
 
-    public JsonObjectRequest headRequest(JSONObject jsonObject, String url)
+    public JsonObjectRequest headNewsRequest(JSONObject jsonObject, String url)
     {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, jsonObject,
@@ -120,12 +120,16 @@ public class VolleyHelper
                         Log.i(TAG,response.toString());
 
                         NewsInfo newsInfo= mNewsHelpler.getNewsInfo(response);
+                        if(newsInfo == null)
+                        {
+                            dissMissDialog();
+                            return;
+                        }
+
                         String newsType = newsInfo.getNewsType();
 
                         mNewsHelpler.updateNews(newsInfo, newsType, mHeadNewsListener);
 
-                        if(null!=mProgressDialog)
-                            mProgressDialog.dismiss();
 
                         if(null != mSwipeRefreshLayout)
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -154,7 +158,8 @@ public class VolleyHelper
         return jsonObjectRequest;
     }
 
-    public JsonObjectRequest rcmdRequest(JSONObject jsonObject, String url)
+
+    public JsonObjectRequest rcmdNewsRequest(JSONObject jsonObject, String url)
     {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.POST, url, jsonObject,
@@ -167,14 +172,15 @@ public class VolleyHelper
 
                         NewsInfo newsInfo= mNewsHelpler.getNewsInfo(response);
                         if(newsInfo == null)
+                        {
+                            dissMissDialog();
                             return;
+                        }
 
                         String newsType = newsInfo.getNewsType();
 
                         mNewsHelpler.updateNews(newsInfo, newsType, mRecommendNewsListener);
 
-                        if(null!=mProgressDialog)
-                            mProgressDialog.dismiss();
 
                         if(null != mSwipeRefreshLayout)
                             mSwipeRefreshLayout.setRefreshing(false);
@@ -206,6 +212,13 @@ public class VolleyHelper
 
         return jsonObjectRequest;
     }
+
+    private void dissMissDialog()
+    {
+        if(null!=mProgressDialog)
+            mProgressDialog.dismiss();
+    }
+
 
     public interface OnNewsUpdateListener
     {

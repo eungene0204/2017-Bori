@@ -15,9 +15,9 @@
     <color name="nav_head">#424242</color>
     <color name="black">#000000</color>
 
-    <color name="sim_level_1">#e53935</color>
-    <color name="sim_level_2">#558b2f</color>
-    <color name="sim_level_3">#ff8f00</color>
+    <color name="sim_level_1">#b71c1c</color>
+    <color name="sim_level_2">#f06292</color>
+    <color name="sim_level_3">#9c27b0</color>
     <color name="sim_level_4">#3f51b5</color>
     <color name="sim_level_5">#006db3</color>
 

@@ -1,52 +1,45 @@
 {
   "project_info": {
-    "project_number": "859033016297",
-    "firebase_url": "https://bori-3aea7.firebaseio.com",
-    "project_id": "bori-3aea7",
-    "storage_bucket": "bori-3aea7.appspot.com"
+    "project_number": "342307818150",
+    "firebase_url": "https://borinews.firebaseio.com",
+    "project_id": "borinews",
+    "storage_bucket": "borinews.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:859033016297:android:1214bf41a286665c",
+        "mobilesdk_app_id": "1:342307818150:android:df86e103bec5bd70290267",
         "android_client_info": {
           "package_name": "bori.bori"
         }
       },
       "oauth_client": [
         {
-          "client_id": "859033016297-gqdv1l2526jofmkjlmrhaebb7q1j31kf.apps.googleusercontent.com",
+          "client_id": "342307818150-2e03ub1uait5hgcr7drf311pfco9ojb5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "bori.bori",
-            "certificate_hash": "09a42a4b61d872ded04433538c28621bbb44fcb3"
+            "certificate_hash": "86150b58baba9144c5417b35ccc1ae057fb77fc4"
           }
         },
         {
-          "client_id": "859033016297-2gkm4qcdgld819mjlr66btvq109jfj9g.apps.googleusercontent.com",
+          "client_id": "342307818150-j7eh5foau8monps1ikqv3n13un58aodm.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBR60JBsu0vCT-8kmPtxv4rhtQHIh3ONdw"
+          "current_key": "AIzaSyAANDluT9olU1BTd2kP5gnrpmcwZSfXUIg"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "859033016297-2gkm4qcdgld819mjlr66btvq109jfj9g.apps.googleusercontent.com",
+              "client_id": "342307818150-j7eh5foau8monps1ikqv3n13un58aodm.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }

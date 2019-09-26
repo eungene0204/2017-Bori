@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity
         initVolley();
 
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdNewsRequest(jsonObject,
                 VolleyHelper.RCMD_NEWS_URL);
 
         jsonObjectRequest.setShouldCache(false);

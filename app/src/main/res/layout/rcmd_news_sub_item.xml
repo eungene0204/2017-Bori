@@ -37,7 +37,7 @@
         <TextView
                 android:id="@+id/source_text"
                 tools:text="source"
-                android:text="@{news.getSource()}"
+                android:text="@{news.getStringSrc()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -51,7 +51,7 @@
 
         <TextView
                 android:id="@+id/title"
-                android:layout_width="302dp"
+                android:layout_width="280dp"
                 android:layout_height="78dp"
                 tools:text="test"
                 android:text="@{news.getTitle()}"
@@ -59,8 +59,6 @@
                 android:textSize="19dp"
                 android:textStyle="bold"
                 android:layout_marginTop="5dp"
-                app:autoSizeTextType="uniform"
-                android:autoSizeMaxTextSize="100sp"
                 app:layout_constraintLeft_toLeftOf="@+id/source_img"
                 app:layout_constraintTop_toBottomOf="@+id/source_img"
                 app:layout_constrainedWidth="true"
@@ -69,8 +67,8 @@
 
         <ImageView
                 android:id="@+id/news_img"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 tools:src="@drawable/insight"
                 android:src="@drawable/insight"
                 android:layout_marginRight="10dp"

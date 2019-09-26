@@ -2,6 +2,7 @@ package bori.bori.adapter;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import bori.bori.R;
+import bori.bori.bottomSheet.BottomSheetManager;
 import bori.bori.databinding.RcmdNewsSubItemBinding;
+import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
+import bori.bori.image.ImageManager;
 import bori.bori.news.News;
 import bori.bori.news.SrcLogoManager;
 
@@ -28,11 +38,14 @@ public class RecommendSubNewsAdapter extends RecyclerView.Adapter
     private List<News> mNewsList;
     private RcmdNewsSubItemBinding mRcmdNewsSubItemBinding;
     private final Activity mActivity;
+    private final FragmentManager mFragmentManager;
 
-    public RecommendSubNewsAdapter(final List<News> newsList, Activity activity)
+    public RecommendSubNewsAdapter(final List<News> newsList, Activity activity,
+                                   FragmentManager fragmentManager)
     {
         mNewsList = newsList;
         mActivity = activity;
+        mFragmentManager = fragmentManager;
     }
 
 
@@ -53,37 +66,15 @@ public class RecommendSubNewsAdapter extends RecyclerView.Adapter
         ViewHolder viewHolder = (ViewHolder) holder;
         News news = mNewsList.get(position);
 
+        setSourceLogo(news);
 
         viewHolder.bind(news);
     }
 
-    private void setSourceLogo(Drawable logo, ImageView source_img, TextView source_text)
+    private void setSourceLogo(News news)
     {
-        if(null != logo)
-        {
-            source_img.setImageDrawable(logo);
-            source_text.setVisibility(View.INVISIBLE);
-            source_img.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            source_img.setVisibility(View.INVISIBLE);
-            source_text.setVisibility(View.VISIBLE);
-        }
-
-    }
-
-    private void setImageSrc(String url, ImageView imageView, News news)
-    {
-
-        if(url.isEmpty())
-        {
-            imageView.setImageDrawable(news.getSourceLogo());
-        }
-        else
-        {
-            UrlImageViewHelper.setUrlDrawable(imageView,url, news.getSourceLogo(),6000);
-        }
+        if(news.getSourceLogo() != null)
+            news.setStringSrc("");
     }
 
 
@@ -97,33 +88,61 @@ public class RecommendSubNewsAdapter extends RecyclerView.Adapter
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         public RcmdNewsSubItemBinding mBinding;
+        private ImageView mNewsImg;
+        private ImageView mDownArrow;
 
         public ViewHolder(RcmdNewsSubItemBinding binding)
         {
             super(binding.getRoot());
             this.mBinding = binding;
+
+            mNewsImg = mBinding.getRoot().findViewById(R.id.news_img);
+
+            ImageManager.setRoundedImg(mNewsImg, mActivity);
         }
 
         public void bind(News news)
         {
             mBinding.setNews(news);
+            setImageSrc(news);
+            mDownArrow = mBinding.getRoot().findViewById(R.id.down_arrow);
+            mDownArrow.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    BottomSheetManager.showBottomSheet(news, RcmdNewsBottomSheetDialogFragment.newInstance(),
+                            mFragmentManager);
+
+
+                }
+            });
+
             mBinding.executePendingBindings();
         }
 
-        private void showNewsBottomSheet(News news)
+        private void setImageSrc(News news)
         {
-            /*
-            RcmdNewsBottomSheetDialogFragment rcmdNewsBottomSheetDialogFragment =
-                    RcmdNewsBottomSheetDialogFragment.newInstance();
+            String url = news.getImgUrl();
 
-            Bundle bundle = new Bundle();
-            bundle.putParcelable(News.TAG, news);
+            Glide.with(mActivity).load(url)
+                    .listener(new RequestListener<Drawable>()
+                    {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource)
+                        {
+                            return false;
+                        }
 
-            rcmdNewsBottomSheetDialogFragment.setArguments(bundle);
-
-            rcmdNewsBottomSheetDialogFragment.show(mFragmentManager,
-                    RcmdNewsBottomSheetDialogFragment.TAG); */
-
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource)
+                        {
+                            int a =10 ;
+                            return false;
+                        }
+                    })
+                    .placeholder(R.drawable.ic_rss_grey)
+                    .into(mNewsImg);
         }
 
 

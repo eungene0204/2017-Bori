@@ -46,7 +46,7 @@ public class RecommendCardAdapter extends RecyclerView.Adapter
     private FragmentActivity mActivity;
     private LayoutInflater mLayoutInflater;
 
-    public RecommendCardAdapter(FragmentManager fragmentManager, List<Category> categoryList,
+    public RecommendCardAdapter(FragmentManager fragmentManager,List<Category> categoryList,
                                 Context context, FragmentActivity activity)
     {
         mCategoryList = categoryList;
@@ -98,7 +98,8 @@ public class RecommendCardAdapter extends RecyclerView.Adapter
         else
             subList = newsList;
 
-        RecommendSubNewsAdapter adapter = new RecommendSubNewsAdapter(subList,mActivity);
+       RecommendSubNewsAdapter adapter = new RecommendSubNewsAdapter(subList,mActivity,
+               mFragmentManager);
 
         LinearLayoutManager layoutManager = new
                 LinearLayoutManager(mActivity.getApplication());

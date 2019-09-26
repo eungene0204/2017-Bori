@@ -175,7 +175,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         //mRecyclerView =  rootView.findViewById(R.id.card_list);
 
         mRecyclerView = mBinding.cardRecyclerview;
-        mRecyclerView.setNestedScrollingEnabled(false);
+        //mRecyclerView.setNestedScrollingEnabled(false);
         mRecyclerView.setItemViewCacheSize(20);
         mRecyclerView.setHasFixedSize(true);
 
@@ -186,13 +186,14 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
 
         //List<RcmdNewsSubItemBinding> subItemBindings = asyncInflate();
 
-        mCardAdapter = new RecommendCardAdapter(getActivity().getSupportFragmentManager(),
+       mCardAdapter = new RecommendCardAdapter(getActivity().getSupportFragmentManager(),
                 mCategoryList,getContext(), getActivity());
+
 
         mCardAdapter.setHasStableIds(true);
 
         mBinding.cardRecyclerview.setAdapter(mCardAdapter);
-        mBinding.setCardList(mCategoryList);
+        //mBinding.setCardList(mCategoryList);
 
     }
 
@@ -278,7 +279,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
     {
         Log.i(TAG, "send news request");
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdRequest(jsonObject,
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.rcmdNewsRequest(jsonObject,
                 VolleyHelper.RCMD_NEWS_URL);
 
         VolleySingleton.getInstance(getActivity()).addToRequestQueue(jsonObjectRequest);

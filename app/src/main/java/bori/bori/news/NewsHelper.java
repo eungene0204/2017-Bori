@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import bori.bori.R;
@@ -110,6 +111,7 @@ public class NewsHelper
     }
 
 
+    @Nullable
     public NewsInfo getNewsInfo(JSONObject response)
     {
         NewsInfo newsInfo = new NewsInfo();

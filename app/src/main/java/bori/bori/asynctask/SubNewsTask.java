@@ -1,6 +1,8 @@
 package bori.bori.asynctask;
 
 import android.app.Activity;
+
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import bori.bori.adapter.RecommendCardAdapter;
 import bori.bori.adapter.RecommendSubNewsAdapter;
@@ -13,11 +15,13 @@ public class SubNewsTask extends AsyncTask<RecommendCardAdapter.ViewHolder, Void
 {
     private Activity mActivity;
     private List<News> mNewsList;
+    private FragmentManager mFragmentManager;
 
-    public SubNewsTask(Activity activity,List<News> list)
+    public SubNewsTask(Activity activity,List<News> list, FragmentManager fragmentManager)
     {
         this.mActivity = activity;
         this.mNewsList = list;
+        this.mFragmentManager = fragmentManager;
     }
 
 
@@ -32,7 +36,8 @@ public class SubNewsTask extends AsyncTask<RecommendCardAdapter.ViewHolder, Void
         else
             subList = mNewsList;
 
-        RecommendSubNewsAdapter adapter = new RecommendSubNewsAdapter(subList,mActivity);
+        RecommendSubNewsAdapter adapter = new RecommendSubNewsAdapter(subList,mActivity,
+                mFragmentManager);
 
         LinearLayoutManager layoutManager = new
                 LinearLayoutManager(mActivity.getApplication());

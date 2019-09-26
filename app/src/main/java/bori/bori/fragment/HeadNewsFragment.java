@@ -103,11 +103,11 @@ public class HeadNewsFragment extends Fragment implements
 
         mVolleyHelper.setSwipeRefreshLayout(mSwipeRefreshLayout);
 
-         setRecyclerView(rootView);
+        setRecyclerView(rootView);
 
-         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
-         mMyUser = mListener.onHeadNewsFragmentCall();
+        mMyUser = mListener.onHeadNewsFragmentCall();
 
         int count = mAdapter.getItemCount();
 
@@ -201,7 +201,7 @@ public class HeadNewsFragment extends Fragment implements
     private void requestHeadNews()
     {
         JSONObject jsonObject = JsonUtils.writeJSON(mMyUser);
-        JsonObjectRequest jsonObjectRequest = mVolleyHelper.headRequest(jsonObject,
+        JsonObjectRequest jsonObjectRequest = mVolleyHelper.headNewsRequest(jsonObject,
                 VolleyHelper.HEAD_NEWS_URL);
 
         jsonObjectRequest.setShouldCache(false);
