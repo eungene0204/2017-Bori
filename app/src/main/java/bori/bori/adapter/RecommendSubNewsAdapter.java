@@ -2,17 +2,13 @@ package bori.bori.adapter;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
-import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,15 +17,13 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import bori.bori.R;
 import bori.bori.bottomSheet.BottomSheetManager;
 import bori.bori.databinding.RcmdNewsSubItemBinding;
-import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
-import bori.bori.image.ImageManager;
+import bori.bori.fragment.bottom.RcmdNewsBottomSheetDialogFragment;
+import bori.bori.news.Image.NewsImgManager;
 import bori.bori.news.News;
-import bori.bori.news.SrcLogoManager;
 
 import java.util.List;
 
@@ -98,7 +92,7 @@ public class RecommendSubNewsAdapter extends RecyclerView.Adapter
 
             mNewsImg = mBinding.getRoot().findViewById(R.id.news_img);
 
-            ImageManager.setRoundedImg(mNewsImg, mActivity);
+            NewsImgManager.setRoundedImg(mNewsImg, mActivity);
         }
 
         public void bind(News news)
@@ -113,7 +107,6 @@ public class RecommendSubNewsAdapter extends RecyclerView.Adapter
                 {
                     BottomSheetManager.showBottomSheet(news, RcmdNewsBottomSheetDialogFragment.newInstance(),
                             mFragmentManager);
-
 
                 }
             });

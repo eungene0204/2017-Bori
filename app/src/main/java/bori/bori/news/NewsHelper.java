@@ -11,6 +11,10 @@ import androidx.fragment.app.Fragment;
 import bori.bori.R;
 import bori.bori.fragment.EmptyFragment;
 import bori.bori.fragment.FragmentHelper;
+import bori.bori.news.Image.NewsImgManager;
+import bori.bori.news.date.NewsDateManager;
+import bori.bori.news.source.SrcLogoManager;
+import bori.bori.news.source.SrcManager;
 import bori.bori.utility.JsonUtils;
 import bori.bori.utility.TimeUtils;
 //import org.json.JSONArray;
@@ -19,9 +23,6 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +77,8 @@ public class NewsHelper
                 //imgSrc = jsonObject.getString("img src");
                 imgSrc = NewsImgManager.getImgSrc(jsonObject);
                 sourceUrl = SrcManager.getSourceUrl(jsonObject.getString("source"));
-                date = NewsDateManager.getDate(jsonObject.getString("published"));
+                //date = NewsDateManager.getDate(jsonObject.getString("published"));
+                date = "";
                 category = jsonObject.getString(News.KEY_CATEGORY);
                 simLelvel = jsonObject.getString("sim_level");
 

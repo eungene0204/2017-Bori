@@ -18,19 +18,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
-import bori.bori.fragment.FavNewsBottomSheetFragment;
-import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
+import bori.bori.fragment.bottom.FavNewsBottomSheetFragment;
+import bori.bori.fragment.bottom.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
-import bori.bori.news.SrcLogoManager;
+import bori.bori.news.source.SrcLogoManager;
 import bori.bori.realm.FavNews;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmRecyclerViewAdapter;
 import io.realm.RealmResults;
-
-import java.util.Map;
 
 public class FavNewsAdapter extends RealmRecyclerViewAdapter
 {

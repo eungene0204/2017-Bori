@@ -12,7 +12,7 @@ import bori.bori.R;
 import bori.bori.adapter.RecommendListAdapter;
 import bori.bori.news.News;
 import bori.bori.news.NewsHelper;
-import bori.bori.news.SrcLogoManager;
+import bori.bori.news.source.SrcLogoManager;
 
 import java.util.List;
 

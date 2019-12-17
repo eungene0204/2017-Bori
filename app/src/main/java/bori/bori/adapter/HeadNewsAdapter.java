@@ -1,10 +1,8 @@
 package bori.bori.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,14 +14,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import bori.bori.R;
 import bori.bori.activity.WebViewActivity;
-import bori.bori.fragment.HeadNewsBottomSheetFragment;
-import bori.bori.image.ImageManager;
+import bori.bori.fragment.bottom.HeadNewsBottomSheetFragment;
+import bori.bori.news.Image.NewsImgManager;
 import bori.bori.news.News;
-import bori.bori.news.NewsHelper;
+
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListItemViewHolder>
@@ -176,7 +172,7 @@ public class HeadNewsAdapter extends RecyclerView.Adapter<HeadNewsAdapter.ListIt
                 }
             });
 
-            ImageManager.setRoundedImg(mNewsImg, mContext);
+            NewsImgManager.setRoundedImg(mNewsImg, mContext);
 
         }
 

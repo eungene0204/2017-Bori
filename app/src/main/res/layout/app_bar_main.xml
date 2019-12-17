@@ -54,21 +54,6 @@
 
                 />
 
-
-
-                <ImageView
-                        android:id="@+id/sort_img"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/ic_sort_grey"
-                        android:layout_marginRight="33dp"
-                        android:padding="5dp"
-                        android:visibility="invisible"
-                        android:foreground="?android:attr/selectableItemBackground"
-                />
-
             </RelativeLayout>
 
         </androidx.appcompat.widget.Toolbar>

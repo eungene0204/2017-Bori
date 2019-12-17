@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ import bori.bori.databinding.RcmdNewsSubItemBinding;
 import bori.bori.news.Category;
 import bori.bori.news.NewsHelper;
 import bori.bori.news.NewsInfo;
+import bori.bori.news.NewsListManager;
 import bori.bori.utility.FontUtils;
 import bori.bori.utility.JsonUtils;
 import bori.bori.utility.SortUtils;
@@ -70,7 +72,6 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean mIsRefresh = false;
-    private int mFontSize;
 
     private FragmentRecommendCardBinding mBinding;
 
@@ -86,16 +87,6 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         mProgressDialog = new ProgressDialog(getActivity());
 
         initVolley();
-
-        Bundle bundle = getArguments();
-        if(bundle != null)
-        {
-            mFontSize = bundle.getInt(FontUtils.KEY_FONT_SIZE);
-        }
-        else
-        {
-            mFontSize = (int)getResources().getDimension(R.dimen.webview_text_size_middle);
-        }
 
     }
 
@@ -118,7 +109,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         //View rootView = inflater.inflate(R.layout.fragment_recommend_card, container, false);
          mBinding = DataBindingUtil.inflate
                 (inflater,R.layout.fragment_recommend_card,container,false);
-        setToolbar();
+
 
         //mSwipeRefreshLayout = rootView.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout = mBinding.swiperefresh;
@@ -147,12 +138,6 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
         return mBinding.getRoot();
     }
 
-    private void setToolbar()
-    {
-        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
-        ImageView sortImg = toolbar.findViewById(R.id.sort_img);
-        sortImg.setVisibility(View.VISIBLE);
-    }
 
     private void getNewsInfo()
     {
@@ -194,6 +179,7 @@ public class RecommendCardFragment extends Fragment implements SwipeRefreshLayou
 
         mBinding.cardRecyclerview.setAdapter(mCardAdapter);
         //mBinding.setCardList(mCategoryList);
+
 
     }
 

@@ -52,7 +52,7 @@ public class VolleyHelper
 {
     static final private String TAG = "VolleyHelper";
 
-    static final private String LOCAL = "http://192.168.0.4:8000/bori";
+    static final private String LOCAL = "http://192.168.0.8:8000/bori";
     static final public String HEAD_NEWS_URL = LOCAL + "/head";
     static final public String RCMD_NEWS_URL = LOCAL + "/rcmd";
 

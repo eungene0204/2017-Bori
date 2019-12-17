@@ -5,16 +5,15 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentTransaction;
+
 import bori.bori.application.BoriApplication;
 import bori.bori.connection.ConnectionDetector;
 import bori.bori.fragment.*;
-import bori.bori.news.SrcLogoManager;
+import bori.bori.news.source.SrcLogoManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -41,7 +40,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 
 import bori.bori.adapter.RecommendListAdapter;
-import bori.bori.auth.SessionManager;
 import bori.bori.user.MyUser;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setToolbarTitle(toolbar);
-        setSortPopup(toolbar);
+        //setSortPopup(toolbar);
 
 
         mBottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -172,6 +170,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    /*
     private void setSortPopup(Toolbar toolbar)
     {
         mSortImageView = toolbar.findViewById(R.id.sort_img);
@@ -186,7 +185,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-    }
+    }*/
 
     private void showSortBottomSheet()
     {

@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import bori.bori.fragment.RcmdNewsBottomSheetDialogFragment;
+import bori.bori.fragment.bottom.RcmdNewsBottomSheetDialogFragment;
 import bori.bori.news.News;
 
 public class BottomSheetManager

@@ -36,8 +36,6 @@ public class StatFragment extends Fragment
     {
         View view = inflater.inflate(R.layout.fragment_stat,container,false);
 
-        setToolbar();
-
         mViewPager = view.findViewById(R.id.stat_viewpager);
         mAdapter = new StatPagerAdapter(getChildFragmentManager(), getActivity());
         mViewPager.setAdapter(mAdapter);
@@ -48,12 +46,6 @@ public class StatFragment extends Fragment
         return view;
     }
 
-    private void setToolbar()
-    {
-        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
-        ImageView sortImg = toolbar.findViewById(R.id.sort_img);
-        sortImg.setVisibility(View.GONE);
-    }
 
     @Override
     public void onResume()

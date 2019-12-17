@@ -99,7 +99,6 @@ public class HeadNewsFragment extends Fragment implements
         mSwipeRefreshLayout.setColorSchemeColors(
                 ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
-        setToolbar();
 
         mVolleyHelper.setSwipeRefreshLayout(mSwipeRefreshLayout);
 
@@ -119,12 +118,6 @@ public class HeadNewsFragment extends Fragment implements
         return rootView;
     }
 
-    private void setToolbar()
-    {
-        Toolbar toolbar = getActivity().findViewById(R.id.toolbar);
-        ImageView sortImg = toolbar.findViewById(R.id.sort_img);
-        sortImg.setVisibility(View.GONE);
-    }
 
     private void setRecyclerView(View rootView)
     {
